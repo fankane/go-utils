@@ -8,12 +8,21 @@
 > 文件相关操作
 
 - [x] DirFiles: 目录下面的文件名列表
+- [x] ReadFile: 读取文件内容
+- [x] DeleteFiles: 删除文件
+- [x] DeleteDir: 删除目录
+- [x] DeleteDirFilesWithPref: 删除目录下指定前缀的文件
+- [x] FileExist: 文件是否存在
+- [x] DirExist: 目录是否存在
+- [x] Mkdir: 创建目录
 
 ## archive
 > 压缩文件相关操作
 
 - rar: rar文件的相关操作
+  - UnRar: 解压 rar 文件
 - zip: zip文件的相关操作
+  - UnZip: 解压 zip 文件
 
 ## string
 > 字符串操作
