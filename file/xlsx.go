@@ -34,7 +34,7 @@ func XlsxSheetOfIdx(filePath string, idx int) ([][]string, error) {
 }
 
 // XlsxAddColAtLast 在最后面插入一列，根据第一行的列数来确定最后一列
-func XlsxAddColAtLast(filePath string, colVals interface{}) error {
+func XlsxAddColAtLast(filePath string, colVals []interface{}) error {
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
 		return err
@@ -44,10 +44,13 @@ func XlsxAddColAtLast(filePath string, colVals interface{}) error {
 	if err != nil {
 		return err
 	}
-	return addColAtLast(f, sheetName, colVals)
+	if err = addColAtLast(f, sheetName, colVals); err != nil {
+		return err
+	}
+	return nil
 }
 
-func XlsxSheetAddColAtLast(filePath, sheetName string, colVals interface{}) error {
+func XlsxSheetAddColAtLast(filePath, sheetName string, colVals []interface{}) error {
 	f, err := excelize.OpenFile(filePath)
 	if err != nil {
 		return err
@@ -80,7 +83,7 @@ func getSheetName(f *excelize.File, idx int) (string, error) {
 	return name, nil
 }
 
-func addColAtLast(f *excelize.File, sheetName string, colVals interface{}) error {
+func addColAtLast(f *excelize.File, sheetName string, colVals []interface{}) error {
 	if sheetName == "" {
 		return fmt.Errorf("sheetName is empty")
 	}
@@ -88,29 +91,30 @@ func addColAtLast(f *excelize.File, sheetName string, colVals interface{}) error
 	if err != nil {
 		return err
 	}
-	fmt.Println("colNum:", colNum)
-	lastColName, err := excelize.ColumnNumberToName(colNum)
+	/**
+	insertCol 是在指定列的【前面】添加,所以需要+2
+	比如：只有一列A，需要往后面添加B列，则需要在 C列前插入B， A-C的距离为2
+	*/
+	lastColName, err := excelize.ColumnNumberToName(colNum + 2)
 	if err != nil {
 		return err
 	}
-	fmt.Println("lastColName:", lastColName)
 	if err = f.InsertCols(sheetName, lastColName, 1); err != nil {
 		return err
 	}
-
-	newColName, err := excelize.ColumnNumberToName(colNum + 1)
-	if err != nil {
-		return err
-	}
-	startColName := fmt.Sprintf("%s1", newColName)
-	fmt.Println("newColName:", startColName)
-	//if err = f.SetSheetCol(sheetName, startColName, colVals); err != nil {
-	//	return err
-	//}
-	if err = f.SetCellValue(sheetName, startColName, "你好吗"); err != nil {
-		return err
+	if len(colVals) > 0 {
+		newColName, err := excelize.ColumnNumberToName(colNum + 1)
+		if err != nil {
+			return err
+		}
+		if err = f.SetSheetCol(sheetName, fmt.Sprintf("%s1", newColName), &colVals); err != nil {
+			return err
+		}
 	}
 
+	if err := f.Save(); err != nil {
+		return fmt.Errorf("file save err:%s", err)
+	}
 	return nil
 }
 
