@@ -23,6 +23,7 @@
 - rar: rar文件的相关操作
   - UnRar: 解压 rar 文件
 - zip: zip文件的相关操作
+  - CreateZip: 创建 zip 文件
   - UnZip: 解压 zip 文件
 
 ## string
@@ -35,8 +36,9 @@
 - contain
   - InInterfaces,InStrings, InInts 等，判定某个切片里面是否存在某个具体的值; 支持基础类型 int, string, float
 - transform
-  - SliToInterfaces: 将普通切片转换成interface切片，例如 []int -> []interface; 支持基础类型 int, string, float
-
+  - ToInterfaceSli: 将普通切片转换成interface切片，例如 []int -> []interface; 支持基础类型 int, string, float
+- compare
+  - StrSliContentEqual: 比较两个字符串切片内容是否相同，忽略顺序
 ## uuid
 
 ## random

@@ -1,12 +1,14 @@
 package slice
 
-// SliToInterfaces
+import "strconv"
+
+// ToInterfaceSli
 /**
 例如
 []int{} -> []interface{}
 []string{} -> []interface{}
 */
-func SliToInterfaces(slice interface{}) []interface{} {
+func ToInterfaceSli(slice interface{}) []interface{} {
 	result := make([]interface{}, 0)
 	switch slice.(type) {
 	case []int:
@@ -76,4 +78,51 @@ func SliToInterfaces(slice interface{}) []interface{} {
 		return result
 	}
 	return nil
+}
+
+// StrSliToIntSli 字符串切片转 int 切片，如果元素不是int类型，则跳过，不报错
+func StrSliToIntSli(slice []string) []int {
+	intSli := make([]int, 0, len(slice))
+	for _, s := range slice {
+		i, err := strconv.Atoi(s)
+		if err != nil {
+			continue
+		}
+		intSli = append(intSli, i)
+	}
+	return intSli
+}
+
+// StrSliToFloat64Sli 字符串切片转 float64 切片，如果元素不是 float64 类型，则跳过，不报错
+func StrSliToFloat64Sli(slice []string) []float64 {
+	intSli := make([]float64, 0, len(slice))
+	for _, s := range slice {
+		i, err := strconv.ParseFloat(s, 64)
+		if err != nil {
+			continue
+		}
+		intSli = append(intSli, i)
+	}
+	return intSli
+}
+
+func StrSliToMap(slice []string) map[string]struct{} {
+	res := make(map[string]struct{})
+	for _, s := range slice {
+		res[s] = struct{}{}
+	}
+	return res
+}
+
+// StrSliToMapCnt 字符串切片转map， value是key出现的次数
+func StrSliToMapCnt(slice []string) map[string]int {
+	res := make(map[string]int)
+	for _, s := range slice {
+		if _, ok := res[s]; ok {
+			res[s]++
+		} else {
+			res[s] = 1
+		}
+	}
+	return res
 }
