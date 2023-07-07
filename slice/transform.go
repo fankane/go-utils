@@ -6,7 +6,7 @@ import "strconv"
 /**
 例如
 []int{} -> []interface{}
-[]string{} -> []interface{}
+[]str{} -> []interface{}
 */
 func ToInterfaceSli(slice interface{}) []interface{} {
 	result := make([]interface{}, 0)

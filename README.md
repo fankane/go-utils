@@ -16,7 +16,7 @@
   - [x] DeleteFiles: 删除文件
   - [x] DeleteDir: 删除目录
   - [x] DeleteDirFilesWithPref: 删除目录下指定前缀的文件
-
+- xlsx: xlsx格式解析
 
 ## archive
 > 压缩文件相关操作
@@ -43,3 +43,8 @@
 
 ## random
 
+## err
+> 自定义error结构
+
+## http
+> http 方法包装
