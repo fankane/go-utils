@@ -16,7 +16,9 @@
   - [x] DeleteFiles: 删除文件
   - [x] DeleteDir: 删除目录
   - [x] DeleteDirFilesWithPref: 删除目录下指定前缀的文件
-- xlsx: xlsx格式解析
+- xlsx: xlsx 文件处理
+- xls: xls 文件的读[建议优先考虑xlsx]
+- csv: csv 文件处理
 
 ## archive
 > 压缩文件相关操作
@@ -28,7 +30,8 @@
 
 ## string
 > 字符串操作
-
+  - 字符串转换
+  - uuid
 ## time
 > 日期相关功能
 
@@ -39,7 +42,6 @@
   - ToInterfaceSli: 将普通切片转换成interface切片，例如 []int -> []interface; 支持基础类型 int, string, float
 - compare
   - StrSliContentEqual: 比较两个字符串切片内容是否相同，忽略顺序
-## uuid
 
 ## random
 

@@ -135,7 +135,7 @@ func openXlsFile(filePath string) (*xls.WorkBook, error) {
 	if !strings.HasSuffix(filePath, xlsSuf) {
 		return nil, fmt.Errorf("not *.xls file")
 	}
-	if !FileExist(filePath) {
+	if !Exist(filePath) {
 		return nil, fmt.Errorf("file not exist")
 	}
 	xlsFile, err := xls.Open(filePath, "utf-8")

@@ -17,7 +17,7 @@ func DirExist(dir string) bool {
 	return fInfo.IsDir()
 }
 
-func FileExist(filePath string) bool {
+func Exist(filePath string) bool {
 	_, err := os.Stat(filePath)
 	if os.IsNotExist(err) {
 		return false

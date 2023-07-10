@@ -99,7 +99,7 @@ func ZipDir(zipFileName, dir string) (err error) {
 }
 
 func checkZipFile(zipFileName string) error {
-	if file.FileExist(zipFileName) {
+	if file.Exist(zipFileName) {
 		return fmt.Errorf("zipFile:%s already exist", zipFileName)
 	}
 	if !strings.HasSuffix(zipFileName, ".zip") {

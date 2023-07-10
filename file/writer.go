@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strconv"
 	"strings"
+	"time"
 )
 
 // MkdirWhenNo 目录不存在则创建，存在则忽略
@@ -19,10 +21,34 @@ func MkdirWhenNo(dir string, perm os.FileMode) error {
 	return nil
 }
 
+// MkdirY 在dir下面，按年创建文件夹
+func MkdirY(dir string, perm os.FileMode) error {
+	now := time.Now()
+	newDir := filepath.Join(dir, strconv.Itoa(now.Year()))
+	return MkdirWhenNo(newDir, perm)
+}
+
+// MkdirYM 在dir下面，按年月创建文件夹
+func MkdirYM(dir string, perm os.FileMode) error {
+	now := time.Now()
+	newDir := filepath.Join(dir, strconv.Itoa(now.Year()),
+		strconv.Itoa(int(now.Month())))
+	return MkdirWhenNo(newDir, perm)
+}
+
+// MkdirYMD 在dir下面，按年月日创建文件夹
+func MkdirYMD(dir string, perm os.FileMode) error {
+	now := time.Now()
+	newDir := filepath.Join(dir, strconv.Itoa(now.Year()),
+		strconv.Itoa(int(now.Month())),
+		strconv.Itoa(now.Day()))
+	return MkdirWhenNo(newDir, perm)
+}
+
 func DeleteFiles(filePath ...string) error {
 	delFailed := make([]string, 0)
 	for _, s := range filePath {
-		if !FileExist(s) {
+		if !Exist(s) {
 			continue //文件不存在，直接返回
 		}
 		if err := os.Remove(s); err != nil {
@@ -60,7 +86,7 @@ func DeleteDirFilesWithPref(dir, pref string) error {
 	delFailed := make([]string, 0)
 	for _, s := range prefFiles {
 		f := filepath.Join(dir, s)
-		if !FileExist(f) {
+		if !Exist(f) {
 			continue //文件不存在，直接返回
 		}
 		if err = os.Remove(f); err != nil {

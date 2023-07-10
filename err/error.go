@@ -8,7 +8,7 @@ type Err struct {
 	ShowMsg string //不想显示原始信息，替换的字段
 }
 
-type ErrOption func(e *Err)
+type Option func(e *Err)
 
 func (e *Err) Error() string {
 	if e == nil {
@@ -35,7 +35,7 @@ func (e *Err) EShowMsg() string {
 	return e.ShowMsg
 }
 
-func NewErr(msg string, opts ...ErrOption) *Err {
+func NewErr(msg string, opts ...Option) *Err {
 	e := &Err{Msg: msg}
 	for _, opt := range opts {
 		opt(e)
@@ -43,8 +43,8 @@ func NewErr(msg string, opts ...ErrOption) *Err {
 	return e
 }
 
-// CopyErr 从 err 复制一个对象，如果有opts，则覆盖原对象的值
-func CopyErr(err *Err, opts ...ErrOption) *Err {
+// Copy 从 err 复制一个对象，如果有opts，则覆盖原对象的值
+func Copy(err *Err, opts ...Option) *Err {
 	if err == nil {
 		return nil
 	}
@@ -60,7 +60,7 @@ func CopyErr(err *Err, opts ...ErrOption) *Err {
 }
 
 // FromError 从 err 创建
-func FromError(err error, opts ...ErrOption) *Err {
+func FromError(err error, opts ...Option) *Err {
 	if err == nil {
 		return nil
 	}
@@ -84,19 +84,19 @@ func ToErr(err error) *Err {
 	return NewErr(err.Error())
 }
 
-func WithCode(code int) ErrOption {
+func WithCode(code int) Option {
 	return func(e *Err) {
 		e.Code = code
 	}
 }
 
-func WithMsg(msg string) ErrOption {
+func WithMsg(msg string) Option {
 	return func(e *Err) {
 		e.Msg = msg
 	}
 }
 
-func WithShowMsg(showMsg string) ErrOption {
+func WithShowMsg(showMsg string) Option {
 	return func(e *Err) {
 		e.ShowMsg = showMsg
 	}

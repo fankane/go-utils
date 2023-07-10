@@ -68,7 +68,7 @@ func (c *Client) PostJSONByte(url string, data []byte) (int, []byte, error) {
 }
 
 func (c *Client) PostJSON(url, json string) (int, []byte, error) {
-	return c.Post(url, map[string]string{ContentType: ContentTypeJSON}, str.StrToBytes(json))
+	return c.Post(url, map[string]string{ContentType: ContentTypeJSON}, str.ToBytes(json))
 }
 
 func (c *Client) PostForm(url string, data url.Values) (int, []byte, error) {
@@ -110,7 +110,7 @@ func (c *Client) doRequest(method, url string, data []byte, header map[string]st
 
 func (c *Client) setShortConn(req *http.Request) {
 	if c.ShortConn {
-		req.Header.Set("Connection", "close")
+		req.Header.Set(Connection, "close")
 	}
 }
 
