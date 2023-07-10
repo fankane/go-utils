@@ -59,6 +59,23 @@ func XlsxSheetAddColAtLast(filePath, sheetName string, colVals []interface{}) er
 	return addColAtLast(f, sheetName, colVals)
 }
 
+// XlsxAddRowsAtLast 在最后面插入一行
+func XlsxAddRowsAtLast(filePath string, rowVals []interface{}) error {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	sheetName, err := getSheetName(f, defaultSheetIdx)
+	if err != nil {
+		return err
+	}
+	if err = addRowAtLast(f, sheetName, rowVals); err != nil {
+		return err
+	}
+	return nil
+}
+
 func sheetOfIdx(f *excelize.File, idx int) ([][]string, error) {
 	name, err := getSheetName(f, idx)
 	if err != nil {
@@ -136,4 +153,45 @@ func getColNumOfRow(f *excelize.File, sheetName string, n int) (int, error) {
 		}
 	}
 	return 0, fmt.Errorf("do not found no.[%d] row", n)
+}
+
+// 获取行数
+func getSheetRowLen(f *excelize.File, sheetName string) (int, error) {
+	rows, err := f.Rows(sheetName)
+	if err != nil {
+		return 0, err
+	}
+	i := 0
+	for rows.Next() {
+		i++
+	}
+	return i, nil
+}
+
+func addRowAtLast(f *excelize.File, sheetName string, rowVals []interface{}) error {
+	if sheetName == "" {
+		return fmt.Errorf("sheetName is empty")
+	}
+	rowIdx, err := getSheetRowLen(f, sheetName)
+	if err != nil {
+		return err
+	}
+
+	/**
+	insertRow 是在指定行的【前面】添加,所以需要+2
+	比如：只有一行 1，需要往后面添加第2行，则需要在第3行前插入第2 行，
+	*/
+	if err = f.InsertRows(sheetName, rowIdx+2, 1); err != nil {
+		return err
+	}
+	if len(rowVals) > 0 {
+		if err = f.SetSheetRow(sheetName, fmt.Sprintf("A%d", rowIdx+1), &rowVals); err != nil {
+			return err
+		}
+	}
+
+	if err := f.Save(); err != nil {
+		return fmt.Errorf("file save err:%s", err)
+	}
+	return nil
 }

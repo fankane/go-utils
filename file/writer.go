@@ -2,6 +2,7 @@ package file
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -97,4 +98,29 @@ func DeleteDirFilesWithPref(dir, pref string) error {
 		return nil
 	}
 	return fmt.Errorf(fmt.Sprintf("delete failed:[%s]", strings.Join(delFailed, ",")))
+}
+
+func Copy(dst, src string) (int64, error) {
+	if Exist(src) {
+		return 0, fmt.Errorf("[%s] already exist", src)
+	}
+	sourceFileStat, err := os.Stat(src)
+	if err != nil {
+		return 0, err
+	}
+	if !sourceFileStat.Mode().IsRegular() {
+		return 0, fmt.Errorf("%s is not a regular file", src)
+	}
+	source, err := os.Open(src)
+	if err != nil {
+		return 0, err
+	}
+	defer source.Close()
+
+	destination, err := os.Create(dst)
+	if err != nil {
+		return 0, err
+	}
+	defer destination.Close()
+	return io.Copy(destination, source)
 }
