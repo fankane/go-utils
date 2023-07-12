@@ -76,6 +76,19 @@ func XlsxAddRowsAtLast(filePath string, rowVals []interface{}) error {
 	return nil
 }
 
+// XlsxSheetAddRowsAtLast 在指定Sheet最后面插入一行
+func XlsxSheetAddRowsAtLast(filePath, sheetName string, rowVals []interface{}) error {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err = addRowAtLast(f, sheetName, rowVals); err != nil {
+		return err
+	}
+	return nil
+}
+
 func sheetOfIdx(f *excelize.File, idx int) ([][]string, error) {
 	name, err := getSheetName(f, idx)
 	if err != nil {

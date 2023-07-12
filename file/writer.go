@@ -101,8 +101,8 @@ func DeleteDirFilesWithPref(dir, pref string) error {
 }
 
 func Copy(dst, src string) (int64, error) {
-	if Exist(src) {
-		return 0, fmt.Errorf("[%s] already exist", src)
+	if Exist(dst) {
+		return 0, fmt.Errorf("[%s] already exist", dst)
 	}
 	sourceFileStat, err := os.Stat(src)
 	if err != nil {
