@@ -1,4 +1,4 @@
-package time
+package utime
 
 const (
 	LayYMD1    = "2006-01-02"
