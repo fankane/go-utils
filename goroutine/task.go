@@ -46,7 +46,6 @@ func NewTaskManager(opts ...TOption) (*TaskManager, error) {
 		opt(tm)
 	}
 	tm.funcChan = make(chan func(), tm.maxWaitTask)
-	//pool, err := ants.NewPool(tm.runnerNum, ants.WithNonblocking(true))
 	pool, err := ants.NewPool(tm.runnerNum)
 	if err != nil {
 		return nil, err
