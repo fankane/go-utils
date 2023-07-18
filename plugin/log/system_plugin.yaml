@@ -1,0 +1,19 @@
+plugins:
+  log:
+    zap_sugar:
+      default:
+        level: "debug"
+        enable_stdout: true
+        filename: ./ldm.log
+        max_size: 1
+        max_age: 2
+        max_backups: 7
+        compress: false
+      logName2:
+        level: "error"
+        enable_stdout: true
+        filename: ./ldm_err.log
+        max_size: 10
+        max_age: 2
+        max_backups: 7
+        compress: true

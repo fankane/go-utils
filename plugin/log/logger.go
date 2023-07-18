@@ -1,50 +1,95 @@
 package log
 
 import (
-	"io/ioutil"
+	"fmt"
 	"os"
 	"strings"
+	"sync"
 
+	"github.com/fankane/go-utils/plugin"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 	"gopkg.in/natefinch/lumberjack.v2"
 	"gopkg.in/yaml.v3"
 )
 
+const (
+	pluginType     = "log"
+	pluginName     = "zap_sugar"
+	defaultLogName = "default"
+)
+
+var (
+	Logger         *zap.SugaredLogger
+	DefaultFactory = &Factory{}
+	mu             sync.RWMutex
+	loggers        = make(map[string]*zap.SugaredLogger)
+)
+
 func init() {
-	// 默认读取system.yaml 文件，来加载 log 配置
-	res, err := ioutil.ReadFile("system.yaml")
-	if err != nil {
-		return
-	}
-	conf := &ConfContent{}
-	if err = yaml.Unmarshal(res, conf); err != nil {
-		return
-	}
-	newLogger(conf.Log)
+	plugin.Register(pluginName, DefaultFactory)
 }
 
-var Logger *zap.SugaredLogger
-
-func newLogger(conf *Config) {
-	core := zapcore.NewCore(getEncoder(), getLogWriter(conf), getLevel(conf.Level))
-	logger := zap.New(core, zap.AddCaller())
-	Logger = logger.Sugar()
+func GetLogger(name string) *zap.SugaredLogger {
+	mu.RLock()
+	defer mu.RUnlock()
+	return loggers[name]
 }
 
-func getEncoder() zapcore.Encoder {
+type Factory struct {
+}
+
+// Type 日志插件类型
+func (f *Factory) Type() string {
+	return pluginType
+}
+
+// Setup 启动加载log配置 并注册日志
+func (f *Factory) Setup(name string, node *yaml.Node) error {
+	return newLogger(node)
+}
+
+func newLogger(node *yaml.Node) error {
+	mu.Lock()
+	defer mu.Unlock()
+	logMap := make(map[string]*Config)
+	if err := node.Decode(&logMap); err != nil {
+		return fmt.Errorf("decode err:%s", err)
+	}
+
+	if len(logMap) == 0 {
+		return fmt.Errorf("log is empty")
+	}
+	for logName, conf := range logMap {
+		core := zapcore.NewCore(getEncoder(conf.Format), getLogWriter(conf), getLevel(conf.Level))
+		logger := zap.New(core, zap.AddCaller())
+		loggers[logName] = logger.Sugar()
+		if logName == defaultLogName {
+			Logger = logger.Sugar()
+		}
+	}
+	return nil
+}
+
+func getEncoder(format string) zapcore.Encoder {
 	encoderConf := zap.NewProductionEncoderConfig()
 	encoderConf.EncodeTime = zapcore.ISO8601TimeEncoder
+	if strings.ToLower(format) == FormatJSON {
+		return zapcore.NewJSONEncoder(encoderConf)
+	}
 	return zapcore.NewConsoleEncoder(encoderConf)
 }
 
 func getLogWriter(conf *Config) zapcore.WriteSyncer {
+	if conf.Filename == "" {
+		conf.Filename = "./log.log"
+	}
 	lumberJackLogger := &lumberjack.Logger{
-		Filename:   conf.file.Filename,
-		MaxSize:    conf.file.MaxSize,
-		MaxBackups: conf.file.MaxBackups,
-		MaxAge:     conf.file.MaxAge,
-		Compress:   conf.file.Compress,
+		Filename:   conf.Filename,
+		MaxSize:    conf.MaxSize,
+		MaxBackups: conf.MaxBackups,
+		MaxAge:     conf.MaxAge,
+		Compress:   conf.Compress,
 	}
 	if conf.EnableStdout {
 		return zapcore.NewMultiWriteSyncer(zapcore.AddSync(lumberJackLogger), zapcore.AddSync(os.Stdout))
