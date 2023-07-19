@@ -27,12 +27,27 @@ var (
 	plugins = make(map[string]map[string]Factory) // plugin type => { plugin name => plugin factory }
 )
 
-func Load(configFile string) error {
-	if configFile == "" {
-		configFile = "system_plugin.yaml"
+type LoadParam struct {
+	ConfigFile string
+}
+
+type Option func(param *LoadParam)
+
+func ConfigFile(file string) Option {
+	return func(param *LoadParam) {
+		param.ConfigFile = file
+	}
+}
+
+func Load(opts ...Option) error {
+	params := &LoadParam{
+		ConfigFile: "system_plugin.yaml", //默认文件路径
+	}
+	for _, opt := range opts {
+		opt(params)
 	}
 	// 默认读取system.yaml 文件，来加载 log 配置
-	res, err := ioutil.ReadFile(configFile)
+	res, err := ioutil.ReadFile(params.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read file err:%s", err)
 	}
@@ -54,12 +69,10 @@ func Register(name string, factory Factory) {
 	defer mu.Unlock()
 	factories, ok := plugins[factory.Type()]
 	if !ok {
-		fmt.Println(fmt.Sprintf("%s not exists,create", factory.Type()))
 		factories = make(map[string]Factory)
 		plugins[factory.Type()] = factories
 	}
 	factories[name] = factory
-	fmt.Println("register:", fmt.Sprintf("%+v", factory))
 }
 
 func (c Config) Setup() error {
@@ -67,10 +80,8 @@ func (c Config) Setup() error {
 		for pluginName, conf := range factories {
 			f := Get(typ, pluginName)
 			if f == nil {
-				fmt.Println(fmt.Sprintf("global:%+v", plugins))
 				return fmt.Errorf("[%s - %s] not register", typ, pluginName)
 			}
-			fmt.Println("type:", typ, ", name:", pluginName, ", node:", fmt.Sprintf("%+v", conf))
 			if err := f.Setup(pluginName, &conf); err != nil {
 				return err
 			}

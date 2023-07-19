@@ -7,7 +7,7 @@ import (
 )
 
 func Test_newLogger(t *testing.T) {
-	if err := plugin.Load(""); err != nil {
+	if err := plugin.Load(); err != nil {
 		fmt.Println("err:", err)
 		return
 	}
@@ -19,5 +19,4 @@ func Test_newLogger(t *testing.T) {
 		Logger.Info("test", i)
 		GetLogger("logName2").Errorf("hi")
 	}
-
 }
