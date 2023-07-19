@@ -4,6 +4,17 @@
 > 如果你需要什么常见的功能，这里没有的，可提起pull request, 或者联系本人添加 <br>
 > 邮箱: fanhu1116@qq.com 
 
+## plugin
+#### <font style="color: red">不需要写代码</font> 将一些基础功能，通过配置文件的形式，在服务启动的时候，自动加载，需要的时候，直接使用； <br>
+
+```go
+import	"github.com/fankane/go-utils/plugin"
+
+plugin.Load()
+```
+
+[各种插件使用方法](plugin/README.md)
+
 ## file
 > 文件相关操作
 - 读
@@ -50,8 +61,3 @@
 
 ## http
 > http 方法包装
-
-
-## plugin
-[plugin使用方法](./plugin/README.md)
-
