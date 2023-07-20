@@ -1,4 +1,4 @@
-package mysql
+package postgres
 
 import (
 	"database/sql"
@@ -7,14 +7,14 @@ import (
 	"time"
 
 	"github.com/fankane/go-utils/plugin"
-	_ "github.com/go-sql-driver/mysql"
+	_ "github.com/lib/pq"
 	"gopkg.in/yaml.v3"
 )
 
 const (
-	defaultMysqlName = "default"
-	pluginType       = "database"
-	pluginName       = "mysql"
+	defaultDBName = "default"
+	pluginType    = "database"
+	pluginName    = "postgres"
 )
 
 var (
@@ -44,19 +44,19 @@ func (f *Factory) Type() string {
 
 // Setup 启动加载log配置 并注册日志
 func (f *Factory) Setup(name string, node *yaml.Node) error {
-	mysqlMap := make(map[string]*Config)
-	if err := node.Decode(&mysqlMap); err != nil {
+	postgresMap := make(map[string]*Config)
+	if err := node.Decode(&postgresMap); err != nil {
 		return fmt.Errorf("decode err:%s", err)
 	}
-	if len(mysqlMap) == 0 {
-		return fmt.Errorf("mysql config is emtpy")
+	if len(postgresMap) == 0 {
+		return fmt.Errorf("postgres config is emtpy")
 	}
-	for confName, config := range mysqlMap {
+	for confName, config := range postgresMap {
 		db, err := NewDB(config)
 		if err != nil {
 			return err
 		}
-		if confName == defaultMysqlName {
+		if confName == defaultDBName {
 			DB = db
 		}
 		mu.Lock()
@@ -67,9 +67,11 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 }
 
 func NewDB(config *Config) (*sql.DB, error) {
-	db, err := sql.Open("mysql", config.DSN)
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		config.Host, config.Port, config.User, config.Pwd, config.DBName)
+	db, err := sql.Open("postgres", dsn)
 	if err != nil {
-		return nil, fmt.Errorf("[%s] open err:%s", config.DSN, err)
+		return nil, fmt.Errorf("open err:%s", err)
 	}
 
 	if config.MaxOpenConn > 0 {
@@ -85,7 +87,7 @@ func NewDB(config *Config) (*sql.DB, error) {
 		db.SetConnMaxLifetime(time.Second * time.Duration(config.ConnMaxLifeTimeSec))
 	}
 	if err = db.Ping(); err != nil {
-		return nil, fmt.Errorf("[%s] ping err:%s", config.DSN, err)
+		return nil, fmt.Errorf("ping err:%s, dsn:%s", err, dsn)
 	}
 	return db, nil
 }
