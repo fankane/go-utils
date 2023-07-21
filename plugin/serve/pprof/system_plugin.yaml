@@ -1,0 +1,4 @@
+plugins:
+  serve:  # 插件类型: 服务类
+    pprof: # 插件名
+      addr: 127.0.0.1:8801

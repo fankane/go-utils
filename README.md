@@ -13,7 +13,14 @@ import	"github.com/fankane/go-utils/plugin"
 plugin.Load()
 ```
 
-[各种插件使用方法](plugin/README.md)
+#### [完整的插件配置文件](./plugin/README.md) 
+
+详细说明文档
+- [log 插件使用](./plugin/log/README.md)
+- [MySQL 插件使用](./plugin/database/mysql/README.md)
+- [Postgres 插件使用](./plugin/database/postgres/README.md)
+- [Redis 插件使用](./plugin/database/redis/README.md)
+- [Pprof 插件使用](./plugin/serve/pprof/README.md)
 
 ## file
 > 文件相关操作
@@ -43,7 +50,7 @@ plugin.Load()
 > 字符串操作
   - 字符串转换
   - uuid
-## time
+## utime
 > 日期相关功能
 
 ## slice
@@ -56,7 +63,7 @@ plugin.Load()
 
 ## random
 
-## err
+## uerr
 > 自定义error结构
 
 ## http
