@@ -6,6 +6,7 @@
 - 使用1个Redis
 - 使用1个postgres
 - 使用pprof
+- 使用conf
 
 ```yaml
 plugins:
@@ -61,4 +62,8 @@ plugins:
   serve:  # 插件类型: 服务类
     pprof: # 插件名
       addr: 127.0.0.1:6060
+    conf: # 插件名
+      conf_file: test_conf.yaml
+      watch_change: true           #监听文件更新, 默认false
+      change_cron: "@every 10s"
 ```

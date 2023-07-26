@@ -21,6 +21,7 @@ plugin.Load()
 - [Postgres 插件使用](./plugin/database/postgres/README.md)
 - [Redis 插件使用](./plugin/database/redis/README.md)
 - [Pprof 插件使用](./plugin/serve/pprof/README.md)
+- [Conf 插件使用](./plugin/serve/conf/README.md)
 
 ## file
 > 文件相关操作
