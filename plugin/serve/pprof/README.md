@@ -1,5 +1,5 @@
 ### pprof
-1. 在入口，比如 main.go 里面隐式导入log包路径
+1. 在入口，比如 main.go 里面隐式导入pprof包路径
 ```go 
 import _ "github.com/fankane/go-utils/plugin/serve/pprof"
 ```
@@ -7,7 +7,7 @@ import _ "github.com/fankane/go-utils/plugin/serve/pprof"
 2. 在运行文件根目录下的 **system_plugin.yaml** 文件(没有则新建一个)里面添加如下内容
 ```yaml
 plugins:
-  serve:  # 插件类型: log
+  serve:  # 插件类型: 
     pprof: # 插件名
       addr: localhost:6060 #pprof 程序监听地址，跟本身服务监听端口切勿重复
 ```

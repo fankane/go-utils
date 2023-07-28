@@ -1,0 +1,5 @@
+plugins:
+  database:  # 插件类型:
+    freecache: # 插件名
+      default:                # 连接名称：default，可以是其他名字
+        cache_size: 102400

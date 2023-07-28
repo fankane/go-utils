@@ -1,5 +1,5 @@
 ### Postgres
-1. 在入口，比如 main.go 里面隐式导入log包路径
+1. 在入口，比如 main.go 里面隐式导入postgres包路径
 ```go 
 import _ "github.com/fankane/go-utils/plugin/database/postgres"
 ```
@@ -7,7 +7,7 @@ import _ "github.com/fankane/go-utils/plugin/database/postgres"
 2. 在运行文件根目录下的 **system_plugin.yaml** 文件(没有则新建一个)里面添加如下内容
 ```yaml
 plugins:
-  database:  # 插件类型: log
+  database:  # 插件类型: 
     postgres: # 插件名
         default:                # 连接名称：default，可以是其他名字
           host: 127.0.0.1

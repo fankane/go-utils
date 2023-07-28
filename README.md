@@ -19,22 +19,15 @@ plugin.Load()
 - [log 插件使用](./plugin/log/README.md)
 - [MySQL 插件使用](./plugin/database/mysql/README.md)
 - [Postgres 插件使用](./plugin/database/postgres/README.md)
+- [Freecache插件使用](./plugin/database/freecache/README.md)
 - [Redis 插件使用](./plugin/database/redis/README.md)
 - [Pprof 插件使用](./plugin/serve/pprof/README.md)
 - [Conf 插件使用](./plugin/serve/conf/README.md)
 
 ## file
 > 文件相关操作
-- 读
-  - [x] DirFiles: 目录下面的文件名列表
-  - [x] Content: 读取文件内容
-  - [x] FileExist: 文件是否存在
-  - [x] DirExist: 目录是否存在
-- 写
-  - [x] Mkdir: 创建目录
-  - [x] DeleteFiles: 删除文件
-  - [x] DeleteDir: 删除目录
-  - [x] DeleteDirFilesWithPref: 删除目录下指定前缀的文件
+- 文件、目录 读操作
+- 文件、目录 写操作
 - xlsx: xlsx 文件处理
 - xls: xls 文件的读[建议优先考虑xlsx]
 - csv: csv 文件处理
@@ -49,10 +42,12 @@ plugin.Load()
 
 ## string
 > 字符串操作
-  - 字符串转换
+  - 字符串转换、中文字符串处理
   - uuid
 ## utime
 > 日期相关功能
+  - cron 语法定期执行
+  - 延期执行，ticker 执行，可选参数，比如最多执行次数，最长等待时间
 
 ## slice
 - contain
@@ -65,7 +60,7 @@ plugin.Load()
 ## random
 
 ## uerr
-> 自定义error结构
+> 自定义error，支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
 
 ## http
 > http 方法包装
