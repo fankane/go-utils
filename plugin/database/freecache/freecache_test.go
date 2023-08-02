@@ -17,7 +17,7 @@ func TestFactory_Setup(t *testing.T) {
 		return
 	}
 	Cache.Set([]byte("test"), []byte("hello"), 100)
-	res, err := Cache.Get([]byte("test"))
+	res, err := Cache.Get([]byte("test2"))
 	if err != nil {
 		fmt.Println(err)
 		return

@@ -66,4 +66,8 @@ plugins:
       conf_file: test_conf.yaml
       watch_change: true           #监听文件更新, 默认false
       change_cron: "@every 10s"
+
+  monitor:  # 插件类型:
+    prometheus: # 插件名
+      port: 7701
 ```

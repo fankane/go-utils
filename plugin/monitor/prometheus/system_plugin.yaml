@@ -1,0 +1,5 @@
+plugins:
+  monitor:  # 插件类型:
+    prometheus: # 插件名
+      port: 7701
+      

@@ -3,6 +3,7 @@ package plugin
 import (
 	"fmt"
 	"io/ioutil"
+	"log"
 	"sync"
 
 	"gopkg.in/yaml.v3"
@@ -29,6 +30,7 @@ var (
 
 type LoadParam struct {
 	ConfigFile string
+	IgnoreErr  bool //忽略插件加载失败场景，默认false
 }
 
 type Option func(param *LoadParam)
@@ -36,6 +38,12 @@ type Option func(param *LoadParam)
 func ConfigFile(file string) Option {
 	return func(param *LoadParam) {
 		param.ConfigFile = file
+	}
+}
+
+func IgnoreErr(ignore bool) Option {
+	return func(param *LoadParam) {
+		param.IgnoreErr = ignore
 	}
 }
 
@@ -49,7 +57,7 @@ func Load(opts ...Option) error {
 	// 默认读取system.yaml 文件，来加载 log 配置
 	res, err := ioutil.ReadFile(params.ConfigFile)
 	if err != nil {
-		return fmt.Errorf("read file err:%s", err)
+		return fmt.Errorf("read plugin config file err:%s, filepath:%s", err, params.ConfigFile)
 	}
 	pluginConf := &GlobalConfig{}
 	if err = yaml.Unmarshal(res, &pluginConf); err != nil {
@@ -58,7 +66,7 @@ func Load(opts ...Option) error {
 	if pluginConf == nil || len(pluginConf.Plugins) == 0 {
 		return fmt.Errorf("plugin is empty")
 	}
-	if err = pluginConf.Plugins.Setup(); err != nil {
+	if err = pluginConf.Plugins.Setup(params.IgnoreErr); err != nil {
 		return fmt.Errorf("setup err:%s", err)
 	}
 	return nil
@@ -75,16 +83,22 @@ func Register(name string, factory Factory) {
 	factories[name] = factory
 }
 
-func (c Config) Setup() error {
+func (c Config) Setup(ignoreErr bool) error {
 	for typ, factories := range c {
 		for pluginName, conf := range factories {
 			f := Get(typ, pluginName)
 			if f == nil {
 				return fmt.Errorf("[%s - %s] not register", typ, pluginName)
 			}
-			if err := f.Setup(pluginName, &conf); err != nil {
+			err := f.Setup(pluginName, &conf)
+			if err != nil {
+				if ignoreErr {
+					log.Println(fmt.Sprintf("%s setup failed, err:%s", pluginName, err))
+					continue
+				}
 				return err
 			}
+			log.Println(fmt.Sprintf("%s installed ", pluginName))
 		}
 	}
 	return nil

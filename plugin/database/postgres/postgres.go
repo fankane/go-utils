@@ -67,8 +67,16 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 }
 
 func NewDB(config *Config) (*sql.DB, error) {
-	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
-		config.Host, config.Port, config.User, config.Pwd, config.DBName)
+	dsn := fmt.Sprintf("host=%s port=%d sslmode=disable", config.Host, config.Port)
+	if config.User != "" {
+		dsn = fmt.Sprintf("%s user=%s ", dsn, config.User)
+	}
+	if config.Pwd != "" {
+		dsn = fmt.Sprintf("%s password=%s ", dsn, config.Pwd)
+	}
+	if config.DBName != "" {
+		dsn = fmt.Sprintf("%s dbname=%s ", dsn, config.DBName)
+	}
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open err:%s", err)

@@ -23,11 +23,11 @@ plugin.Load()
 - [Redis 插件使用](./plugin/database/redis/README.md)
 - [Pprof 插件使用](./plugin/serve/pprof/README.md)
 - [Conf 插件使用](./plugin/serve/conf/README.md)
+- [Prometheus 插件使用](./plugin/monitor/prometheus/README.md)
 
 ## file
 > 文件相关操作
-- 文件、目录 读操作
-- 文件、目录 写操作
+- 文件、目录 读写 操作
 - xlsx: xlsx 文件处理
 - xls: xls 文件的读[建议优先考虑xlsx]
 - csv: csv 文件处理
