@@ -2,9 +2,10 @@ package pprof
 
 import (
 	"fmt"
-	"github.com/fankane/go-utils/plugin"
 	"testing"
 	"time"
+
+	"github.com/fankane/go-utils/plugin"
 )
 
 func TestFactory_Setup(t *testing.T) {

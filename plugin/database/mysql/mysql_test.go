@@ -16,4 +16,17 @@ func TestFactory_Setup(t *testing.T) {
 		fmt.Println("db is nil")
 		return
 	}
+	rows, err := DB.Query("show databases")
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	for rows.Next() {
+		var temp string
+		if err = rows.Scan(&temp); err != nil {
+			fmt.Println(err)
+			return
+		}
+		fmt.Println("temp:", temp)
+	}
 }

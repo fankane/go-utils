@@ -16,7 +16,8 @@ func TestFactory_Setup(t *testing.T) {
 		fmt.Println("db is nil")
 		return
 	}
-	rows, err := DB.Query("select * from system_config")
+	DB.Exec("")
+	rows, err := DB.Query("select * from test")
 	if err != nil {
 		fmt.Println(err)
 		return

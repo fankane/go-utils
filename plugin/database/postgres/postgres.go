@@ -81,7 +81,6 @@ func NewDB(config *Config) (*sql.DB, error) {
 	if err != nil {
 		return nil, fmt.Errorf("open err:%s", err)
 	}
-
 	if config.MaxOpenConn > 0 {
 		db.SetMaxOpenConns(config.MaxOpenConn)
 	}
