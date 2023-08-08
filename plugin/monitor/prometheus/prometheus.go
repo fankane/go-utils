@@ -2,7 +2,6 @@ package prometheus
 
 import (
 	"fmt"
-	"github.com/prometheus/client_golang/prometheus"
 	"net/http"
 	"strings"
 	"sync"
@@ -10,6 +9,7 @@ import (
 
 	"github.com/fankane/go-utils/plugin"
 	"github.com/go-playground/validator/v10"
+	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"gopkg.in/yaml.v3"
 )
@@ -23,11 +23,38 @@ var (
 	defaultPath    = "/metrics"
 	DefaultFactory = &Factory{}
 	mu             sync.RWMutex
+
+	CollGauge     CollectType = "gauge"
+	CollCounter   CollectType = "counter"
+	CollHistogram CollectType = "histogram"
+	CollSummary   CollectType = "summary"
+
+	collectorList = make(map[CollectType]map[string]prometheus.Collector)
 )
 
+var okCollTypeList = []CollectType{
+	CollGauge,
+	CollCounter,
+	CollHistogram,
+	CollSummary,
+}
+
+type CollectType string
+
 type Config struct {
-	Port int    `yaml:"port" validate:"gt=0,lte=65535"`
-	Path string `yaml:"path"`
+	Port           int              `yaml:"port" validate:"gt=0,lte=65535"`
+	Path           string           `yaml:"path"`
+	CustomCollects []*CustomCollect `yaml:"custom_collects"`
+}
+
+type CustomCollect struct {
+	CollType string                  `yaml:"coll_type" validate:"required,oneof=gauge counter"`
+	Info     map[string]*CollectInfo `yaml:"info"` //key: 上报名称
+}
+
+type CollectInfo struct {
+	Help   string   `yaml:"help"`
+	Labels []string `yaml:"labels"`
 }
 
 func init() {
@@ -55,7 +82,10 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 	if strings.TrimSpace(path) == "" {
 		path = defaultPath
 	}
-	http.Handle(defaultPath, promhttp.Handler())
+	http.Handle(path, promhttp.Handler())
+	if err := InitCollects(conf.CustomCollects); err != nil {
+		return err
+	}
 
 	var err error
 	go func() {
@@ -68,12 +98,125 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 	return nil
 }
 
-func NewGauge() {
-	g := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "test_hf",
-	}, []string{"label1", "label2"})
-	g.WithLabelValues("val1", "val2").Set(1.0)
-	g.WithLabelValues("val1", "val3").Set(2.0)
-	g.WithLabelValues("val2", "val3").Set(3.0)
-	prometheus.MustRegister(g)
+// RegisteredCollTypeList 通过配置文件注册的采集器类型列表
+func RegisteredCollTypeList() []CollectType {
+	list := make([]CollectType, 0)
+	for collectType, _ := range collectorList {
+		list = append(list, collectType)
+	}
+	return list
+}
+
+// RegisteredCollNameList  通过配置文件注册的采集器里面的指标名称列表
+func RegisteredCollNameList(collType CollectType) []string {
+	names := make([]string, 0)
+	for collectType, nameMap := range collectorList {
+		if collectType == collType {
+			for name, _ := range nameMap {
+				names = append(names, name)
+			}
+			return names
+		}
+	}
+	return []string{}
+}
+
+func GetGaugeVec(name string) *prometheus.GaugeVec {
+	res := getCollector(name, CollGauge)
+	if res == nil {
+		return nil
+	}
+	return res.(*prometheus.GaugeVec)
+}
+func GetCounterVec(name string) *prometheus.CounterVec {
+	res := getCollector(name, CollCounter)
+	if res == nil {
+		return nil
+	}
+	return res.(*prometheus.CounterVec)
+}
+func GetHistogram(name string) prometheus.Histogram {
+	res := getCollector(name, CollHistogram)
+	if res == nil {
+		return nil
+	}
+	return res.(prometheus.Histogram)
+}
+func GetSummary(name string) prometheus.Summary {
+	res := getCollector(name, CollSummary)
+	if res == nil {
+		return nil
+	}
+	return res.(prometheus.Summary)
+}
+
+func getCollector(name string, collType CollectType) prometheus.Collector {
+	existMap, ok := collectorList[collType]
+	if !ok || existMap == nil {
+		return nil
+	}
+	g, ok := existMap[name]
+	if !ok {
+		return nil
+	}
+	return g
+}
+
+func InitCollects(collects []*CustomCollect) error {
+	for _, collect := range collects {
+		if err := checkCollType(collect.CollType); err != nil {
+			return err
+		}
+		createCollVec(CollectType(collect.CollType), collect.Info)
+	}
+	return nil
+}
+
+func checkCollType(collType string) error {
+	for _, collectType := range okCollTypeList {
+		if collectType == CollectType(collType) {
+			return nil
+		}
+	}
+	return fmt.Errorf("unsuport collect type:%s", collType)
+}
+
+func createCollVec(collType CollectType, collect map[string]*CollectInfo) {
+	for name, info := range collect {
+		var cs prometheus.Collector
+		switch collType {
+		case CollGauge:
+			cs = prometheus.NewGaugeVec(prometheus.GaugeOpts{
+				Name: name,
+				Help: info.Help,
+			}, info.Labels)
+		case CollCounter:
+			cs = prometheus.NewCounterVec(prometheus.CounterOpts{
+				Name: name,
+				Help: info.Help,
+			}, info.Labels)
+		case CollHistogram:
+			cs = prometheus.NewHistogram(prometheus.HistogramOpts{
+				Name: name,
+				Help: info.Help,
+			})
+		case CollSummary:
+			cs = prometheus.NewSummary(prometheus.SummaryOpts{
+				Name: name,
+				Help: info.Help,
+			})
+		}
+		setCollector(collType, name, cs)
+		prometheus.MustRegister(cs)
+	}
+}
+
+func setCollector(collType CollectType, name string, coll prometheus.Collector) {
+	if _, ok := collectorList[collType]; !ok {
+		collectorList[collType] = map[string]prometheus.Collector{
+			name: coll,
+		}
+	} else {
+		collectorList[collType][name] = coll
+	}
 }

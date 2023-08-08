@@ -7,6 +7,7 @@
 - 使用1个postgres
 - 使用pprof
 - 使用conf
+- 使用 Prometheus
 
 ```yaml
 plugins:
@@ -70,4 +71,30 @@ plugins:
   monitor:  # 插件类型:
     prometheus: # 插件名
       port: 7701
+      path: "/metrics"
+      custom_collects:
+        - coll_type: counter     # 采集类型[counter, gauge, histogram, summary]
+          info:
+            counter_test1:       # 指标名
+              help: 自定义计数指标1 # 指标说明
+              labels:
+                - label1    # 标签
+                - label2    # 标签
+            counter_test2:
+              help: 自定义计数指标2
+              labels:
+                - label1
+                - label2
+        - coll_type: gauge  
+          info:
+            test1:
+              help: 自定义数值指标1
+              labels:
+                - label1
+                - label2
+            test2:
+              help: 自定义数值指标1
+              labels:
+                - label1
+                - label2
 ```

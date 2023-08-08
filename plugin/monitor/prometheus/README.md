@@ -10,7 +10,15 @@ plugins:
   monitor:  # 插件类型:
     prometheus: # 插件名
       port: 7701  #Prometheus服务监听端口号，不要和服务本身端口重复
-
+      path: "/metrics"
+      custom_collects:
+        - coll_type: gauge  #采集类型[counter, gauge, histogram, summary]
+          info:
+            test1:                  # 指标名
+              help: 自定义计数指标1  # 指标说明
+              labels:
+                - label1          # 标签
+                - label2          # 标签
 ```
 
 3. 效果展示
@@ -20,16 +28,13 @@ plugins:
 
 - 3.2 自定义数据上报
 ```go
-    g := prometheus.NewGaugeVec(prometheus.GaugeOpts{
-		Name: "test_hf",
-	}, []string{"label1", "label2"})
-	prometheus.MustRegister(g)
-	for i := 0; i < 100; i++ {
-		g.WithLabelValues("val1", "val2").Set(1.0)
-		g.WithLabelValues("val1", "val3").Set(2.0)
-		g.WithLabelValues("val2", "val3").Set(3.0)
-		time.Sleep(time.Millisecond * 50)
-}
+    g := GetGaugeVec("test1") // test1 是在配置文件里面的指标名
+    for i := 0; i < 100; i++ {
+	  g.WithLabelValues("val1", "val2").Set(1.0)
+	  g.WithLabelValues("val1", "val3").Set(2.0)
+	  g.WithLabelValues("val2", "val3").Set(3.0)
+	  time.Sleep(time.Millisecond * 50)
+    }
 ```
 - ![avatar](../../image/go-custom.png)
 
