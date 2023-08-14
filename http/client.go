@@ -15,6 +15,7 @@ const (
 	Connection         = "Connection"
 	ContentType        = "Content-Type"
 	ContentTypeJSON    = "application/json"
+	ContentTypeXML     = "application/xml"
 	ContentTypeForm    = "application/x-www-form-urlencoded"
 	ContentTypeMulForm = "multipart/form-data"
 )
@@ -53,9 +54,9 @@ func WithTimeout(timeout time.Duration) ClientOption {
 	}
 }
 
-func WithShortConn(timeout time.Duration) ClientOption {
+func WithShortConn(shortConn bool) ClientOption {
 	return func(client *Client) {
-		client.Timeout = timeout
+		client.ShortConn = shortConn
 	}
 }
 
@@ -110,6 +111,7 @@ func (c *Client) doRequest(method, url string, data []byte, header map[string]st
 
 func (c *Client) setShortConn(req *http.Request) {
 	if c.ShortConn {
+		req.Close = true
 		req.Header.Set(Connection, "close")
 	}
 }

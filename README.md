@@ -24,6 +24,7 @@ plugin.Load()
 - [Pprof 插件使用](./plugin/serve/pprof/README.md)
 - [Conf 插件使用](./plugin/serve/conf/README.md)
 - [Prometheus 插件使用](./plugin/monitor/prometheus/README.md)
+- [Kafka 插件使用](./plugin/queue/kafka/README.md)
 
 ## file
 > 文件相关操作
