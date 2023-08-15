@@ -1,0 +1,25 @@
+plugins:
+  queue:  # 插件类型
+    nsq:
+      producers:
+        default:                     # producer 名
+          send_type: sync            # producer 发生类型 [sync, async]
+          addr: 192.168.0.93:4150
+        p2:
+          send_type: async
+          addr: 192.168.0.93:4150
+      consumers:
+        c1:                          # consumer 名称
+          addrs:
+            - 192.168.0.93:4161
+          topic: test1
+          channel: test_group       # 不填会默认生成一个随机值
+          concurrency_consume: false   # 并发消费
+          concurrency_max: 100         # 并发数，当concurrency_consume=true时有效，不填默认1000
+        c2:                          # consumer 名称
+          addrs:
+            - 192.168.0.93:4161
+          topic: test1
+          channel: test_group2       # 不填会默认生成一个随机值
+          concurrency_consume: false   # 并发消费
+          concurrency_max: 100         # 并发数，当concurrency_consume=true时有效，不填默认1000
