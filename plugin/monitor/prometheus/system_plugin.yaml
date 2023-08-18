@@ -2,7 +2,7 @@ plugins:
   monitor:  # 插件类型:
     prometheus: # 插件名
       port: 7701
-      path: "/metrics_hf"
+      path: "/metrics"
       custom_collects:
       - coll_type: counter # 采集类型[counter, gauge, histogram, summary]
         info:
@@ -32,7 +32,15 @@ plugins:
         info:
           yyy:
             help: xxx
+            buckets: [0.01, 0.25, 0.50, 0.75, 0.95]
+            labels:
+              - label1
       - coll_type: summary
         info:
           summary_test1:
             help: xxx
+            objectives:
+              0.5: 0.05
+              0.9: 0.01
+            labels:
+              - label1

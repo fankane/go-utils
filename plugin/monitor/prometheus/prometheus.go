@@ -53,8 +53,10 @@ type CustomCollect struct {
 }
 
 type CollectInfo struct {
-	Help   string   `yaml:"help"`
-	Labels []string `yaml:"labels"`
+	Help       string              `yaml:"help"`
+	Labels     []string            `yaml:"labels"`
+	Buckets    []float64           `yaml:"buckets"`    //Histogram 配置
+	Objectives map[float64]float64 `yaml:"objectives"` //summary 配置
 }
 
 func init() {
@@ -135,19 +137,19 @@ func GetCounterVec(name string) *prometheus.CounterVec {
 	}
 	return res.(*prometheus.CounterVec)
 }
-func GetHistogram(name string) prometheus.Histogram {
+func GetHistogram(name string) *prometheus.HistogramVec {
 	res := getCollector(name, CollHistogram)
 	if res == nil {
 		return nil
 	}
-	return res.(prometheus.Histogram)
+	return res.(*prometheus.HistogramVec)
 }
-func GetSummary(name string) prometheus.Summary {
+func GetSummary(name string) *prometheus.SummaryVec {
 	res := getCollector(name, CollSummary)
 	if res == nil {
 		return nil
 	}
-	return res.(prometheus.Summary)
+	return res.(*prometheus.SummaryVec)
 }
 
 func getCollector(name string, collType CollectType) prometheus.Collector {
@@ -196,15 +198,17 @@ func createCollVec(collType CollectType, collect map[string]*CollectInfo) {
 				Help: info.Help,
 			}, info.Labels)
 		case CollHistogram:
-			cs = prometheus.NewHistogram(prometheus.HistogramOpts{
-				Name: name,
-				Help: info.Help,
-			})
+			cs = prometheus.NewHistogramVec(prometheus.HistogramOpts{
+				Name:    name,
+				Help:    info.Help,
+				Buckets: info.Buckets,
+			}, info.Labels)
 		case CollSummary:
-			cs = prometheus.NewSummary(prometheus.SummaryOpts{
-				Name: name,
-				Help: info.Help,
-			})
+			cs = prometheus.NewSummaryVec(prometheus.SummaryOpts{
+				Name:       name,
+				Help:       info.Help,
+				Objectives: info.Objectives,
+			}, info.Labels)
 		}
 		setCollector(collType, name, cs)
 		prometheus.MustRegister(cs)

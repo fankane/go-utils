@@ -1,0 +1,30 @@
+result_path: res3
+project_name: hufan
+menus:
+  - name: cmd
+    file_names: ["main3.go"]
+    children:
+      - name: exec
+        file_names: ["root2.go"]
+  - name: domain
+    children:
+      - name: entity
+  - name: infrastructure
+    children:
+      - name: config
+        file_names: ["root.go"]
+      - name: logger
+        file_names: ["logger.go"]
+      - name: persistence
+        file_names: ["db.go"]
+  - name: interface
+    children:
+      - name: api
+        file_names: ["router.go"]
+      - name: dto
+        children:
+          - name: request
+          - name: response
+            file_names: ["response.go"]
+      - name: handler
+        file_names: ["health.go"]

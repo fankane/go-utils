@@ -16,6 +16,7 @@ plugins:
           max_size: 1           # 日志文件滚动日志的大小 单位 MB
           max_age: 2            # 最大日志保留天数
           max_backups: 7        # 最大日志备份数量
+          format: json          # [console, json] 默认 console
           compress: false       # 是否压缩，默认：false
         logname2:               # 日志名称：logname2，可以是其他名字
           level: warn           # 日志级别, 默认info [debug, info, warn, error, panic]
@@ -24,6 +25,7 @@ plugins:
           max_size: 10          # 日志文件滚动日志的大小 单位 MB
           max_age: 7            # 最大日志保留天数
           max_backups: 5        # 最大日志备份数量
+          format: json          # [console, json] 默认 console
           compress: true        # 是否压缩，默认：false
 ```
 

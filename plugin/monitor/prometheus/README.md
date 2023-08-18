@@ -35,6 +35,7 @@ plugins:
 	  g.WithLabelValues("val2", "val3").Set(3.0)
 	  time.Sleep(time.Millisecond * 50)
     }
+    // WithLabelValues 的 lables 参数个数需要与配置文件里面的 labels 数量匹配
 ```
 - ![avatar](../../image/go-custom.png)
 

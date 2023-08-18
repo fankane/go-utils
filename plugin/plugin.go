@@ -6,6 +6,7 @@ import (
 	"log"
 	"sync"
 
+	"github.com/fankane/go-utils/goroutine"
 	"gopkg.in/yaml.v3"
 )
 
@@ -54,7 +55,7 @@ func Load(opts ...Option) error {
 	for _, opt := range opts {
 		opt(params)
 	}
-	// 默认读取system.yaml 文件，来加载 log 配置
+	// 默认读取 system_plugin.yaml 文件，来加载配置
 	res, err := ioutil.ReadFile(params.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read plugin config file err:%s, filepath:%s", err, params.ConfigFile)
@@ -84,27 +85,36 @@ func Register(name string, factory Factory) {
 }
 
 func (c Config) Setup(ignoreErr bool) error {
-	for typ, factories := range c {
-		for pluginName, conf := range factories {
-			f := Get(typ, pluginName)
-			if f == nil {
-				return fmt.Errorf("[%s - %s] not register", typ, pluginName)
-			}
-			err := f.Setup(pluginName, &conf)
-			if err != nil {
-				if ignoreErr {
-					log.Println(fmt.Sprintf("%s setup failed, err:%s", pluginName, err))
-					continue
+	fs := make([]func() error, 0)
+	for typT, factories := range c {
+		for pluginNameT, confT := range factories {
+			typ, pluginName, conf := typT, pluginNameT, confT
+			fs = append(fs, func() error {
+				f := Get(typ, pluginName)
+				if f == nil {
+					return fmt.Errorf("[%s - %s] not register", typ, pluginName)
 				}
-				return err
-			}
-			log.Println(fmt.Sprintf("%s installed ", pluginName))
+				err := f.Setup(pluginName, &conf)
+				if err != nil {
+					if ignoreErr {
+						log.Println(fmt.Sprintf("%s setup failed, err:%s", pluginName, err))
+						return nil
+					}
+					return err
+				}
+				log.Println(fmt.Sprintf("%s:%s installed ", typ, pluginName))
+				return nil
+			})
 		}
 	}
-	return nil
+	return goroutine.Exec(fs, goroutine.WithReturnWhenError(true))
 }
 
 // Get 根据插件类型，插件名字获取插件工厂。
 func Get(typ string, name string) Factory {
-	return plugins[typ][name]
+	fMap, ok := plugins[typ]
+	if !ok {
+		return nil
+	}
+	return fMap[name]
 }

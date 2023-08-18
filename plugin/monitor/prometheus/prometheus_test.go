@@ -33,8 +33,8 @@ func TestFactory_Setup(t *testing.T) {
 		g.WithLabelValues("val2", "val3").Set(123.0)
 
 		c.WithLabelValues("cnt1", "http").Inc()
-		h.Observe(66.66)
-		s.Observe(77.77)
+		h.WithLabelValues("h1").Observe(66.66)
+		s.WithLabelValues("s1").Observe(77.77)
 		time.Sleep(time.Millisecond * 50)
 	}
 

@@ -1,6 +1,6 @@
 plugins:
   serve:  # 插件类型: 服务类
     conf: # 插件名
-      conf_file: test_conf.yaml
+      conf_file: test2.yaml
       watch_change: true           #监听文件更新, 默认false
-      change_cron: "@every 10s"
+      change_cron: "@every 3s"
