@@ -70,6 +70,7 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 }
 
 type Operate interface {
+	GetClient() *clientv3.Client //获取原生etcd client
 	Get(ctx context.Context, key string, opts ...clientv3.OpOption) (map[string]*EValue, error)
 	Put(ctx context.Context, key, value string, opts ...clientv3.OpOption) (int64, error)
 	Delete(ctx context.Context, key string, opts ...clientv3.OpOption) (int64, error)
@@ -171,4 +172,8 @@ func (e *etcd) Watch(ctx context.Context, key string, h HandleFunc, opts ...clie
 			}
 		}
 	}
+}
+
+func (e *etcd) GetClient() *clientv3.Client {
+	return e.cli
 }
