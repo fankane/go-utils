@@ -1,0 +1,15 @@
+plugins:
+  distributed:  # 插件类型
+    etcd: # 插件名
+      default:                # MySQL连接名称：default，可以是其他名字
+        endpoints: ["192.168.0.93:2379"]
+#        username: root
+#        password: 123456
+        dial_timeout_ms: 1000
+        open_discovery: true
+        server_info:
+          server_name: "abc"
+          server_id: "abc001"
+          region: wuhan
+          host: 10.10.10.11
+          check_interval: 2   # 服务上报间隔时间，单位：秒

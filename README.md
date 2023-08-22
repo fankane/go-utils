@@ -17,15 +17,21 @@ plugin.Load()
 
 详细说明文档
 - [log 插件使用](./plugin/log/README.md)
-- [MySQL 插件使用](./plugin/database/mysql/README.md)
-- [Postgres 插件使用](./plugin/database/postgres/README.md)
-- [Freecache插件使用](./plugin/database/freecache/README.md)
-- [Redis 插件使用](./plugin/database/redis/README.md)
-- [Pprof 插件使用](./plugin/serve/pprof/README.md)
-- [Conf 插件使用](./plugin/serve/conf/README.md)
-- [Prometheus 插件使用](./plugin/monitor/prometheus/README.md)
-- [Kafka 插件使用](./plugin/queue/kafka/README.md)
-- [NSQ 插件使用](plugin/queue/nsq/README.md)
+- 监控
+  - [Prometheus 插件使用](./plugin/monitor/prometheus/README.md)
+- Database
+  - [MySQL 插件使用](./plugin/database/mysql/README.md)
+  - [Postgres 插件使用](./plugin/database/postgres/README.md)
+  - [Freecache插件使用](./plugin/database/freecache/README.md)
+  - [Redis 插件使用](./plugin/database/redis/README.md)
+- 服务
+  - [Pprof 插件使用](./plugin/serve/pprof/README.md)
+  - [Conf 插件使用](./plugin/serve/conf/README.md)
+- 队列
+  - [Kafka 插件使用](./plugin/queue/kafka/README.md)
+  - [NSQ 插件使用](plugin/queue/nsq/README.md)
+- 分布式
+  - [etcd 插件使用](plugin/distributed/etcd/README.md)
 
 ## file
 > 文件相关操作
