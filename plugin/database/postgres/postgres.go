@@ -67,16 +67,7 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 }
 
 func NewDB(config *Config) (*sql.DB, error) {
-	dsn := fmt.Sprintf("host=%s port=%d sslmode=disable", config.Host, config.Port)
-	if config.User != "" {
-		dsn = fmt.Sprintf("%s user=%s ", dsn, config.User)
-	}
-	if config.Pwd != "" {
-		dsn = fmt.Sprintf("%s password=%s ", dsn, config.Pwd)
-	}
-	if config.DBName != "" {
-		dsn = fmt.Sprintf("%s dbname=%s ", dsn, config.DBName)
-	}
+	dsn := WrapDSN(config)
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("open err:%s", err)
@@ -97,4 +88,34 @@ func NewDB(config *Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("ping err:%s, dsn:%s", err, dsn)
 	}
 	return db, nil
+}
+
+func WrapDSN(config *Config) string {
+	if config == nil {
+		return ""
+	}
+	dsn := fmt.Sprintf("host=%s port=%d sslmode=disable", config.Host, config.Port)
+	if config.User != "" {
+		dsn = fmt.Sprintf("%s user=%s ", dsn, config.User)
+	}
+	if config.Pwd != "" {
+		dsn = fmt.Sprintf("%s password=%s ", dsn, config.Pwd)
+	}
+	if config.DBName != "" {
+		dsn = fmt.Sprintf("%s dbname=%s ", dsn, config.DBName)
+	}
+	return dsn
+}
+
+func Ping(config *Config) error {
+	return PingDSN(WrapDSN(config))
+}
+
+func PingDSN(dsn string) error {
+	db, err := sql.Open("postgres", dsn)
+	if err != nil {
+		return fmt.Errorf("[%s] open err:%s", dsn, err)
+	}
+	defer db.Close()
+	return db.Ping()
 }

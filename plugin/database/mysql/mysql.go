@@ -71,14 +71,7 @@ func NewDB(config *Config) (*sql.DB, error) {
 	if err := validator.New().Struct(config); err != nil {
 		return nil, err
 	}
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/", config.User, config.Pwd,
-		config.Host, config.Port)
-	if config.DBName != "" {
-		dsn = fmt.Sprintf("%s%s", dsn, config.DBName)
-	}
-	if config.Params != "" {
-		dsn = fmt.Sprintf("%s?%s", dsn, config.Params)
-	}
+	dsn := WrapDSN(config)
 	db, err := sql.Open("mysql", dsn)
 	if err != nil {
 		return nil, fmt.Errorf("[%s] open err:%s", dsn, err)
@@ -99,4 +92,32 @@ func NewDB(config *Config) (*sql.DB, error) {
 		return nil, fmt.Errorf("[%s] ping err:%s", dsn, err)
 	}
 	return db, nil
+}
+
+func WrapDSN(config *Config) string {
+	if config == nil {
+		return ""
+	}
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/", config.User, config.Pwd,
+		config.Host, config.Port)
+	if config.DBName != "" {
+		dsn = fmt.Sprintf("%s%s", dsn, config.DBName)
+	}
+	if config.Params != "" {
+		dsn = fmt.Sprintf("%s?%s", dsn, config.Params)
+	}
+	return dsn
+}
+
+func Ping(config *Config) error {
+	return PingDSN(WrapDSN(config))
+}
+
+func PingDSN(dsn string) error {
+	db, err := sql.Open("mysql", dsn)
+	if err != nil {
+		return fmt.Errorf("[%s] open err:%s", dsn, err)
+	}
+	defer db.Close()
+	return db.Ping()
 }
