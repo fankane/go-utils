@@ -8,9 +8,18 @@
 #### <font style="color: red">不需要写代码</font> 将一些基础功能，通过配置文件的形式，在服务启动的时候，自动加载，需要的时候，直接使用； <br>
 
 ```go
-import	"github.com/fankane/go-utils/plugin"
+import	(
+    "github.com/fankane/go-utils/plugin"
+	
+    // 按需引入即可
+    _ "github.com/fankane/go-utils/plugin/log"
+    _ "github.com/fankane/go-utils/plugin/queue/memory"
+)
 
-plugin.Load()
+func main() {
+    plugin.Load()
+}
+
 ```
 
 #### [完整的插件配置文件](./plugin/README.md) 
