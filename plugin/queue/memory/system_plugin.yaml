@@ -4,3 +4,5 @@ plugins:
       buffer_size: 1000   #队列缓冲区，不填默认 1000，超过缓冲区大小的，到了消费的时间，入消费队列会阻塞
       max_size: 10240000  # 占用内存，单位B，不填默认无限制
       max_len: 3000       # 堆积消息数量，不填默认无限制
+      load_at_begin: true         #启动时加载数据，默认false
+      load_file: "./backup"       #当load_at_begin=true时必填

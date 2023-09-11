@@ -6,10 +6,13 @@ import (
 )
 
 var (
-	ErrClosed       = errors.New("producer has closed")
-	ErrOutOfMaxLen  = errors.New("out of max message len")
-	ErrOutOfMaxSize = errors.New("out of max message size")
+	ErrClosed           = errors.New("producer has closed")
+	ErrInternal         = errors.New("internal error")
+	ErrOutOfMaxLen      = errors.New("out of max message len")
+	ErrOutOfMaxSize     = errors.New("out of max message size")
+	ErrConsumerNotFound = errors.New("consumer not found")
 )
+var producers = make([]Producer, 0)
 
 type Producer interface {
 	SendMessage(topic string, value []byte, opts ...Opts) error
@@ -21,7 +24,11 @@ type memProducer struct {
 }
 
 func NewProducer() Producer {
-	return &memProducer{}
+	res := &memProducer{}
+	lock.Lock()
+	producers = append(producers, res)
+	lock.Unlock()
+	return res
 }
 
 type Opts func(*option)
@@ -45,13 +52,16 @@ func (p memProducer) SendMessage(topic string, value []byte, opts ...Opts) error
 		opt(optParams)
 	}
 	globalMemQueue.lock.RLock()
-	topicMsg, ok := globalMemQueue.topicMsgSlice[topic]
+	topicInfo, ok := globalMemQueue.topicInfo[topic]
 	globalMemQueue.lock.RUnlock()
 	if !ok { //新建topic
-		topicMsg = createTopicInfo(topic)
+		topicInfo = createTopicInfo(topic)
+	}
+	if topicInfo == nil {
+		return ErrInternal
 	}
 	// topic 存在，将消息放到指定位置
-	topicMsg.addMessage(wrapMessage(value, optParams.Delay))
+	topicInfo.msgSlice.addMessage(wrapMessage(value, optParams.Delay))
 	return nil
 }
 func (p memProducer) Close() {

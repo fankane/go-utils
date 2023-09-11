@@ -32,7 +32,7 @@ func NewMessageList(topic string) MessageList {
 
 func (m *messageListImpl) addMessage(msg *Message) {
 	defer notifyDealMsg(m.topic, msg)
-	addMessage(msg)
+	addMessage(m.topic, msg)
 	if m.list.Len() == 0 {
 		m.list.PushBack(msg)
 		return
@@ -61,7 +61,6 @@ func (m *messageListImpl) pop() *Message {
 	if !ok {
 		return nil
 	}
-	delMessage(msg)
 	m.list.Remove(first)
 	return msg
 }

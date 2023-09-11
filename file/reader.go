@@ -1,6 +1,8 @@
 package file
 
 import (
+	"bufio"
+	"io"
 	"io/ioutil"
 	"mime/multipart"
 	"os"
@@ -47,4 +49,29 @@ func Content(fileHeader *multipart.FileHeader) ([]byte, error) {
 		return nil, err
 	}
 	return ioutil.ReadAll(f)
+}
+
+func ReadLine(filePath string) ([]string, error) {
+	if !Exist(filePath) {
+		return nil, os.ErrNotExist
+	}
+	f, err := os.Open(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	var lines []string
+	r := bufio.NewReader(f)
+	for {
+		bytes, _, err := r.ReadLine()
+		if err == io.EOF {
+			break
+		}
+		if err != nil {
+			return lines, err
+		}
+		lines = append(lines, string(bytes))
+	}
+	return lines, nil
 }

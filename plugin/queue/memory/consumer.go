@@ -3,6 +3,7 @@ package memory
 import (
 	"context"
 	"fmt"
+	"log"
 )
 
 const (
@@ -12,28 +13,44 @@ const (
 
 type Handler func(ctx context.Context, value []byte) error
 
-var consumers = make(map[string]struct{})
+type memConsumer struct {
+}
+
+var consumers = make(map[string]*memConsumer)
 
 func RegisterHandler(topic string, h Handler) error {
 	if _, ok := consumers[topic]; ok {
 		return fmt.Errorf("topic:%s already has consumer", topic)
 	}
-	consumers[topic] = struct{}{}
+
+	tempCon := &memConsumer{}
+	lock.Lock()
+	consumers[topic] = tempCon
+	lock.Unlock()
 	daemonConsume(topic, h)
 	return nil
 }
 
 func daemonConsume(topic string, h Handler) {
+	msgTopic, ok := globalMemQueue.topicInfo[topic]
+	if !ok {
+		msgTopic = createTopicInfo(topic)
+	}
+	if msgTopic == nil {
+		log.Printf("create topic info failed")
+		return
+	}
 	go func() {
 		for {
-			if _, ok := globalMemQueue.topicChannelMap[topic]; !ok {
-				createTopicInfo(topic)
-			}
 			select {
-			case msg := <-globalMemQueue.topicChannelMap[topic]:
+			case msg := <-msgTopic.consumerChan:
+				if msg == nil {
+					return
+				}
 				ctx := context.Background()
 				ctx = context.WithValue(ctx, CtxPushTs, msg.pushTs)
 				ctx = context.WithValue(ctx, CtxDelay, msg.Delay)
+				go delMessage(topic, msg)
 				h(ctx, msg.Body)
 			}
 		}
