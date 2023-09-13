@@ -1,0 +1,7 @@
+plugins:
+  database:  # 插件类型:
+    elasticsearch: # 插件名
+      default:                # 连接名称：default，可以是其他名字
+        addr: ["http://192.168.0.93:9200"]
+        user:
+        pwd:
