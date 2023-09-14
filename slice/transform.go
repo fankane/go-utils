@@ -126,3 +126,14 @@ func StrSliToMapCnt(slice []string) map[string]int {
 	}
 	return res
 }
+
+func DelStrTarget(slice []string, target string) []string {
+	res := make([]string, 0, len(slice))
+	for _, s := range slice {
+		if s == target {
+			continue
+		}
+		res = append(res, s)
+	}
+	return res
+}
