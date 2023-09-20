@@ -2,7 +2,7 @@ package http
 
 import (
 	"bytes"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
@@ -73,7 +73,7 @@ func (c *Client) PostJSON(url, json string) (int, []byte, error) {
 }
 
 func (c *Client) PostForm(url string, data url.Values) (int, []byte, error) {
-	body, err := ioutil.ReadAll(strings.NewReader(data.Encode()))
+	body, err := io.ReadAll(strings.NewReader(data.Encode()))
 	if err != nil {
 		return 0, nil, err
 	}
@@ -106,7 +106,6 @@ func (c *Client) doRequest(method, url string, data []byte, header map[string]st
 		return 0, nil, err
 	}
 	return parseDoResp(resp)
-
 }
 
 func (c *Client) setShortConn(req *http.Request) {
@@ -117,7 +116,7 @@ func (c *Client) setShortConn(req *http.Request) {
 }
 
 func parseDoResp(resp *http.Response) (int, []byte, error) {
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	defer resp.Body.Close()
 	if err != nil {
 		return resp.StatusCode, nil, err

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
 	"sync"
@@ -84,7 +85,11 @@ func NewDB(config *Config) (*sql.DB, error) {
 	if config.ConnMaxLifeTimeSec > 0 {
 		db.SetConnMaxLifetime(time.Second * time.Duration(config.ConnMaxLifeTimeSec))
 	}
-	if err = db.Ping(); err != nil {
+	ctx := context.Background()
+	if config.PingTimeoutMs > 0 {
+		ctx, _ = context.WithTimeout(ctx, time.Millisecond*time.Duration(config.PingTimeoutMs))
+	}
+	if err = db.PingContext(ctx); err != nil {
 		return nil, fmt.Errorf("ping err:%s, dsn:%s", err, dsn)
 	}
 	return db, nil
@@ -108,14 +113,18 @@ func WrapDSN(config *Config) string {
 }
 
 func Ping(config *Config) error {
-	return PingDSN(WrapDSN(config))
+	ctx := context.Background()
+	if config.PingTimeoutMs > 0 {
+		ctx, _ = context.WithTimeout(ctx, time.Millisecond*time.Duration(config.PingTimeoutMs))
+	}
+	return PingDSN(ctx, WrapDSN(config))
 }
 
-func PingDSN(dsn string) error {
+func PingDSN(ctx context.Context, dsn string) error {
 	db, err := sql.Open("postgres", dsn)
 	if err != nil {
 		return fmt.Errorf("[%s] open err:%s", dsn, err)
 	}
 	defer db.Close()
-	return db.Ping()
+	return db.PingContext(ctx)
 }

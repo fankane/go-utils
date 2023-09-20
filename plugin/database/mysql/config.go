@@ -20,6 +20,7 @@ type Config struct {
 	ConnMaxIdleTimeSec int    `yaml:"conn_max_idle_time_sec"`
 	MaxOpenConn        int    `yaml:"max_open_conn"`
 	MaxIdleConn        int    `yaml:"max_idle_conn"`
+	PingTimeoutMs      int    `yaml:"ping_timeout_ms"` //建立连接ping的超时时间，单位：ms
 }
 
 // TableColumn SHOW FULL COLUMNS FROM db_name.table_name 返回结果

@@ -23,3 +23,80 @@ func TestGetStrIndex(t *testing.T) {
 	sli := SliceOfChar("hello 你好")
 	fmt.Println(sli)
 }
+
+func TestSubOfUTF8(t *testing.T) {
+	type args struct {
+		s     string
+		start int
+		end   int
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: -1,
+				end:   3,
+			},
+			want: "",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 1,
+				end:   9,
+			},
+			want: "",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 5,
+				end:   3,
+			},
+			want: "",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 0,
+				end:   3,
+			},
+			want: "我爱中",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 0,
+				end:   0,
+			},
+			want: "",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 0,
+				end:   1,
+			},
+			want: "我",
+		},
+		{
+			args: args{
+				s:     "我爱中国good",
+				start: 7,
+				end:   8,
+			},
+			want: "d",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := SubOfUTF8(tt.args.s, tt.args.start, tt.args.end); got != tt.want {
+				t.Errorf("SubOfUTF8() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

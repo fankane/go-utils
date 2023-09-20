@@ -55,3 +55,11 @@ func SliceOfChar(s string) []string {
 func LenOfUTF8(s string) int {
 	return utf8.RuneCountInString(s)
 }
+
+// SubOfUTF8 带中文字符串切割
+func SubOfUTF8(s string, start, end int) string {
+	if start < 0 || start >= end || start >= LenOfUTF8(s) || end > LenOfUTF8(s) {
+		return ""
+	}
+	return string([]rune(s)[start:end])
+}
