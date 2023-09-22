@@ -22,7 +22,7 @@ func main() {
 
 ```
 
-#### [完整的插件配置文件](./plugin/README.md) 
+#### [较完整的插件配置文件](./plugin/README.md) 
 
 详细说明文档
 - [log 插件使用](./plugin/log/README.md)
@@ -34,6 +34,7 @@ func main() {
   - [Freecache插件使用](./plugin/database/freecache/README.md)
   - [Redis 插件使用](./plugin/database/redis/README.md)
   - [Elasticsearch 插件使用](./plugin/database/es/README.md)
+  - [Neo4j 插件使用](./plugin/database/neo4j/README.md)
 - 服务
   - [Pprof 插件使用](./plugin/serve/pprof/README.md)
   - [Conf 插件使用](./plugin/serve/conf/README.md)
