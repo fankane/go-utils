@@ -61,7 +61,7 @@ func Retry(f func() error, opts ...Option) error {
 
 	select {
 	case <-ctx.Done():
-		return errTimeout
+		return ErrTimeout
 	case <-finish:
 		return err
 	}
