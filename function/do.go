@@ -8,7 +8,7 @@ import (
 	"github.com/fankane/go-utils/goroutine"
 )
 
-var errTimeout = errors.New("timeout")
+var ErrTimeout = errors.New("timeout")
 
 func DoWithTimeout(f func() error, timeout time.Duration) error {
 	ctx, _ := context.WithTimeout(context.Background(), timeout)
@@ -22,7 +22,7 @@ func DoWithTimeout(f func() error, timeout time.Duration) error {
 
 	select {
 	case <-ctx.Done():
-		return errTimeout
+		return ErrTimeout
 	case <-finish:
 		return err
 	}
