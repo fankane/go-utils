@@ -86,6 +86,30 @@ func (c *Client) GetWithHeader(url string, header map[string]string) (int, []byt
 	return c.doRequest(http.MethodGet, url, nil, header)
 }
 
+func (c *Client) DeleteJSON(url, json string) (int, []byte, error) {
+	return c.doRequest(http.MethodDelete, url, str.ToBytes(json), map[string]string{ContentType: ContentTypeJSON})
+}
+
+func (c *Client) DeleteForm(url string, data url.Values) (int, []byte, error) {
+	body, err := io.ReadAll(strings.NewReader(data.Encode()))
+	if err != nil {
+		return 0, nil, err
+	}
+	return c.doRequest(http.MethodDelete, url, body, map[string]string{ContentType: ContentTypeForm})
+}
+
+func (c *Client) PutJSON(url, json string) (int, []byte, error) {
+	return c.doRequest(http.MethodPut, url, str.ToBytes(json), map[string]string{ContentType: ContentTypeJSON})
+}
+
+func (c *Client) PutForm(url string, data url.Values) (int, []byte, error) {
+	body, err := io.ReadAll(strings.NewReader(data.Encode()))
+	if err != nil {
+		return 0, nil, err
+	}
+	return c.doRequest(http.MethodPut, url, body, map[string]string{ContentType: ContentTypeForm})
+}
+
 func (c *Client) doRequest(method, url string, data []byte, header map[string]string) (int, []byte, error) {
 	var (
 		req *http.Request
@@ -96,6 +120,10 @@ func (c *Client) doRequest(method, url string, data []byte, header map[string]st
 		req, err = http.NewRequest(http.MethodGet, url, nil)
 	case http.MethodPost:
 		req, err = http.NewRequest(http.MethodPost, url, bytes.NewBuffer(data))
+	case http.MethodDelete:
+		req, err = http.NewRequest(http.MethodDelete, url, bytes.NewBuffer(data))
+	case http.MethodPut:
+		req, err = http.NewRequest(http.MethodPut, url, bytes.NewBuffer(data))
 	}
 	for key, val := range header {
 		req.Header.Set(key, val)
