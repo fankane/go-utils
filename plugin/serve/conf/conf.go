@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"path/filepath"
 	"strings"
+	"sync"
 
 	"github.com/fankane/go-utils/plugin"
 	"github.com/fankane/go-utils/slice"
@@ -74,6 +75,8 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 	return viper.ReadInConfig()
 }
 
+var unmarshalLock = sync.RWMutex{}
+
 func Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
 	if confVal.WatchChange {
 		viper.OnConfigChange(func(in fsnotify.Event) {
@@ -82,6 +85,8 @@ func Unmarshal(rawVal interface{}, opts ...viper.DecoderConfigOption) error {
 			}
 			if confVal.ChangeCron != "" {
 				utime.CronDo(confVal.ChangeCron, func() {
+					unmarshalLock.Lock()
+					defer unmarshalLock.Unlock()
 					if isYaml() {
 						yamlUnmarshal(rawVal)
 					} else {

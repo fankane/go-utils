@@ -21,6 +21,7 @@ const (
 
 var (
 	Logger         *zap.SugaredLogger
+	Logger2        *Log
 	DefaultFactory = &Factory{}
 	mu             sync.RWMutex
 	loggers        = make(map[string]*zap.SugaredLogger)
@@ -34,6 +35,14 @@ func GetLogger(name string) *zap.SugaredLogger {
 	mu.RLock()
 	defer mu.RUnlock()
 	return loggers[name]
+}
+
+func GetLogger2(name string) *Log {
+	mu.RLock()
+	defer mu.RUnlock()
+	return &Log{
+		log: loggers[name],
+	}
 }
 
 type Factory struct {
@@ -66,6 +75,9 @@ func newLogger(node *yaml.Node) error {
 		loggers[logName] = logger.Sugar()
 		if logName == defaultLogName {
 			Logger = logger.Sugar()
+			Logger2 = &Log{
+				log: Logger,
+			}
 		}
 	}
 	return nil

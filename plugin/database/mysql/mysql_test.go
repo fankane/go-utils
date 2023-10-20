@@ -2,9 +2,8 @@ package mysql
 
 import (
 	"fmt"
-	"testing"
-
 	"github.com/fankane/go-utils/plugin"
+	"testing"
 )
 
 func TestFactory_Setup(t *testing.T) {
@@ -16,7 +15,7 @@ func TestFactory_Setup(t *testing.T) {
 		fmt.Println("db is nil")
 		return
 	}
-	rows, err := DB.Query("show databases")
+	rows, err := DB.Query("select name from big_test")
 	if err != nil {
 		fmt.Println(err)
 		return

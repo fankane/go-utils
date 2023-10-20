@@ -137,3 +137,11 @@ func DelStrTarget(slice []string, target string) []string {
 	}
 	return res
 }
+
+func StrSliFromIntSli(slice []int) []string {
+	result := make([]string, 0, len(slice))
+	for _, s := range slice {
+		result = append(result, strconv.Itoa(s))
+	}
+	return result
+}
