@@ -70,7 +70,7 @@ func newLogger(node *yaml.Node) error {
 		return fmt.Errorf("log is empty")
 	}
 	for logName, conf := range logMap {
-		core := zapcore.NewCore(getEncoder(conf.Format), getLogWriter(conf), getLevel(conf.Level))
+		core := zapcore.NewCore(getEncoder(conf), getLogWriter(conf), getLevel(conf.Level))
 		logger := zap.New(core, zap.AddCaller())
 		loggers[logName] = logger.Sugar()
 		if logName == defaultLogName {
@@ -83,10 +83,13 @@ func newLogger(node *yaml.Node) error {
 	return nil
 }
 
-func getEncoder(format string) zapcore.Encoder {
+func getEncoder(conf *Config) zapcore.Encoder {
 	encoderConf := zap.NewProductionEncoderConfig()
 	encoderConf.EncodeTime = zapcore.ISO8601TimeEncoder
-	if strings.ToLower(format) == FormatJSON {
+	if conf.EnableColor {
+		encoderConf.EncodeLevel = zapcore.LowercaseColorLevelEncoder
+	}
+	if strings.ToLower(conf.Format) == FormatJSON {
 		return zapcore.NewJSONEncoder(encoderConf)
 	}
 	return zapcore.NewConsoleEncoder(encoderConf)

@@ -2,6 +2,7 @@ package log
 
 import (
 	"context"
+	"go.uber.org/zap/zapcore"
 	"strings"
 
 	"github.com/fankane/go-utils/str"
@@ -12,6 +13,21 @@ const ctxTrace = "_ctx_trace"
 
 type Log struct {
 	log *zap.SugaredLogger
+}
+
+func (l *Log) GetLog() *zap.SugaredLogger {
+	if l == nil {
+		return nil
+	}
+	return l.log
+}
+
+func (l *Log) SetLevel(level zapcore.Level) {
+	if l == nil {
+		return
+	}
+	l.log = l.log.WithOptions(zap.IncreaseLevel(level))
+	return
 }
 
 func NewTraceCtx() context.Context {

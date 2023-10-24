@@ -13,4 +13,5 @@ type Config struct {
 	MaxBackups   int    `yaml:"max_backups"`
 	Format       string `yaml:"format"` //[console, json], 默认 console
 	Compress     bool   `yaml:"compress"`
+	EnableColor  bool   `yaml:"enable_color"` //开启颜色配置
 }

@@ -18,6 +18,7 @@ plugins:
           max_backups: 7        # 最大日志备份数量
           format: json          # [console, json] 默认 console
           compress: false       # 是否压缩，默认：false
+          enable_color: true    # 是否开启颜色配置，默认：false
         logname2:               # 日志名称：logname2，可以是其他名字
           level: warn           # 日志级别, 默认info [debug, info, warn, error, panic]
           enable_stdout: true   # 是否开启日志同步到控制台, 默认false
