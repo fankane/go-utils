@@ -42,6 +42,7 @@ func main() {
   - [Kafka 插件使用](./plugin/queue/kafka/README.md)
   - [NSQ 插件使用](plugin/queue/nsq/README.md)
   - [自研内存队列](plugin/queue/memory/README.md)
+  - [Rabbit 插件使用](plugin/queue/rabbit/README.md)
 - 分布式
   - [etcd 插件使用](plugin/distributed/etcd/README.md)
 

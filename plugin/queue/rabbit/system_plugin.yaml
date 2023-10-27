@@ -1,0 +1,24 @@
+plugins:
+  queue:  # 插件类型
+    rabbit:
+      producers:
+        default:                     # producer 名
+          url: "amqp://guest:guest@192.168.0.93:5672/"
+          durable: false
+          auto_delete: false
+          exclusive: false
+          no_wait: false
+        p2:
+          url: "amqp://guest:guest@localhost:5672/"
+      consumers:
+        c1:                          # consumer 名称
+          url: "amqp://guest:guest@192.168.0.93:5672/"
+          durable: false
+          auto_delete: false
+          exclusive: false
+          no_wait: false
+          queue_names:
+            - "test1"
+            - "test2"
+        c2:                          # consumer 名称
+          url: "amqp://guest:guest@192.168.0.93:5672/"

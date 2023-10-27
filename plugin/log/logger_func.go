@@ -50,37 +50,37 @@ func (l *Log) Debugf(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Debugf(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Debugf(template, args...)
 }
 func (l *Log) Infof(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Infof(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Infof(template, args...)
 }
 func (l *Log) Warnf(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Warnf(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Warnf(template, args...)
 }
 func (l *Log) Errorf(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Errorf(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Errorf(template, args...)
 }
 func (l *Log) Panicf(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Panicf(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Panicf(template, args...)
 }
 func (l *Log) Fatalf(template string, args ...interface{}) {
 	if l == nil || l.log == nil {
 		return
 	}
-	l.log.Fatalf(template, args...)
+	l.log.WithOptions(zap.AddCallerSkip(1)).Fatalf(template, args...)
 }
 
 func (l *Log) DebugfCtx(ctx context.Context, template string, args ...interface{}) {
