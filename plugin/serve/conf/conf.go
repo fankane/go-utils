@@ -2,8 +2,6 @@ package conf
 
 import (
 	"fmt"
-	"github.com/fankane/go-utils/utime"
-	"github.com/fsnotify/fsnotify"
 	"io/ioutil"
 	"path/filepath"
 	"strings"
@@ -11,6 +9,8 @@ import (
 
 	"github.com/fankane/go-utils/plugin"
 	"github.com/fankane/go-utils/slice"
+	"github.com/fankane/go-utils/utime"
+	"github.com/fsnotify/fsnotify"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )

@@ -38,6 +38,7 @@ func main() {
 - 服务
   - [Pprof 插件使用](./plugin/serve/pprof/README.md)
   - [Conf 插件使用](./plugin/serve/conf/README.md)
+  - [Nacos 插件使用](./plugin/serve/nacos/README.md)
 - 队列
   - [Kafka 插件使用](./plugin/queue/kafka/README.md)
   - [NSQ 插件使用](plugin/queue/nsq/README.md)
