@@ -20,6 +20,7 @@ plugins:
         password: "xxx"
         data_id: "xxx"
         group: "xxx"
+        not_load_cache_at_start: true  # not to load persistent nacos service info in CacheDir at start time
 ```
 
 3. 在需要使用的地方，直接使用

@@ -9,3 +9,4 @@ plugins:
         password: "xxx"
         data_id: "xxx"
         group: "xxx"
+        not_load_cache_at_start: true

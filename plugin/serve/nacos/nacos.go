@@ -5,9 +5,9 @@ import (
 	"sync"
 
 	"github.com/fankane/go-utils/plugin"
-	"github.com/nacos-group/nacos-sdk-go/v2/clients"
-	"github.com/nacos-group/nacos-sdk-go/v2/common/constant"
-	"github.com/nacos-group/nacos-sdk-go/v2/vo"
+	"github.com/nacos-group/nacos-sdk-go/clients"
+	"github.com/nacos-group/nacos-sdk-go/common/constant"
+	"github.com/nacos-group/nacos-sdk-go/vo"
 	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
@@ -65,11 +65,12 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 
 func NewClient(conf *Config) (*Client, error) {
 	clientConfig := &constant.ClientConfig{
-		Endpoint:    conf.EndPoint,
-		NamespaceId: conf.NamespaceID,
-		Username:    conf.Username,
-		Password:    conf.Password,
-		TimeoutMs:   conf.TimeoutMs,
+		Endpoint:            conf.EndPoint,
+		NamespaceId:         conf.NamespaceID,
+		Username:            conf.Username,
+		Password:            conf.Password,
+		TimeoutMs:           conf.TimeoutMs,
+		NotLoadCacheAtStart: conf.NotLoadCacheAtStart,
 	}
 
 	client, err := clients.NewConfigClient(
