@@ -64,6 +64,21 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 }
 
 func NewClient(conf *Config) (*Client, error) {
+	scs := make([]constant.ServerConfig, 0)
+	for _, serverConf := range conf.ServerConfs {
+		if serverConf.IpAddr == "" || serverConf.Port == 0 {
+			return nil, fmt.Errorf("server conf ipaddr and port can not be mepty")
+		}
+		opts := make([]constant.ServerOption, 0)
+		if serverConf.Scheme != "" {
+			opts = append(opts, constant.WithScheme(serverConf.Scheme))
+		}
+		if serverConf.ContextPath != "" {
+			opts = append(opts, constant.WithContextPath(serverConf.ContextPath))
+		}
+		sc := constant.NewServerConfig(serverConf.IpAddr, serverConf.Port, opts...)
+		scs = append(scs, *sc)
+	}
 	clientConfig := &constant.ClientConfig{
 		Endpoint:            conf.EndPoint,
 		NamespaceId:         conf.NamespaceID,
@@ -75,7 +90,8 @@ func NewClient(conf *Config) (*Client, error) {
 
 	client, err := clients.NewConfigClient(
 		vo.NacosClientParam{
-			ClientConfig: clientConfig,
+			ClientConfig:  clientConfig,
+			ServerConfigs: scs,
 		},
 	)
 	if err != nil {
