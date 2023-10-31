@@ -86,6 +86,7 @@ func NewClient(conf *Config) (*Client, error) {
 		Password:            conf.Password,
 		TimeoutMs:           conf.TimeoutMs,
 		NotLoadCacheAtStart: conf.NotLoadCacheAtStart,
+		LogDir:              conf.LogDir,
 	}
 
 	client, err := clients.NewConfigClient(

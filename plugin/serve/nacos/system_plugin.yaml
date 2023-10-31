@@ -10,8 +10,9 @@ plugins:
         data_id: "xxx"
         group: "xxx"
         not_load_cache_at_start: true
+        log_dir: ""
         server_confs:
-          ip_addr: ""
-          port: 8080
-          scheme: ""       # 非必填
-          context_path: "" # 非必填
+          - ip_addr: ""
+            port: 8080
+            scheme: ""       # 非必填
+            context_path: "" # 非必填

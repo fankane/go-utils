@@ -11,6 +11,7 @@ type Config struct {
 	DataId              string       `yaml:"data_id"`
 	Group               string       `yaml:"group"`
 	NotLoadCacheAtStart bool         `yaml:"not_load_cache_at_start"`
+	LogDir              string       `yaml:"log_dir"`
 	ServerConfs         []ServerConf `yaml:"server_confs"`
 }
 
