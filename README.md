@@ -47,6 +47,22 @@ func main() {
 - 分布式
   - [etcd 插件使用](plugin/distributed/etcd/README.md)
 
+## uerr
+> 自定义error，支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
+
+## http
+> http 方法包装
+- [websocket使用说明](http/README.md)
+
+## 函数执行
+- 重试执行
+- 超时限制执行
+- 并发执行：可指定协程数量，超时时间，出错返回等可选项
+- 任务池管理
+- 机器信息获取(CPU，磁盘，内存占用)
+- cron 语法定期执行
+- 延期执行，ticker 执行，可选参数，比如最多执行次数，最长等待时间
+
 ## file
 > 文件相关操作
 - 文件、目录 读写 操作
@@ -66,10 +82,6 @@ func main() {
 > 字符串操作
   - 字符串转换、中文字符串处理
   - uuid
-## utime
-> 日期相关功能
-  - cron 语法定期执行
-  - 延期执行，ticker 执行，可选参数，比如最多执行次数，最长等待时间
 
 ## slice
 - contain
@@ -78,12 +90,3 @@ func main() {
   - ToInterfaceSli: 将普通切片转换成interface切片，例如 []int -> []interface; 支持基础类型 int, string, float
 - compare
   - StrSliContentEqual: 比较两个字符串切片内容是否相同，忽略顺序
-
-## random
-
-## uerr
-> 自定义error，支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
-
-## http
-> http 方法包装
-- [websocket使用说明](http/README.md)
