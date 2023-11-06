@@ -46,6 +46,7 @@ func main() {
   - [Rabbit 插件使用](plugin/queue/rabbit/README.md)
 - 分布式
   - [etcd 插件使用](plugin/distributed/etcd/README.md)
+  - [jaeger 插件使用](plugin/distributed/jaeger/README.md)
 
 ## uerr
 > 自定义error，支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
