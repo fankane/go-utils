@@ -61,14 +61,14 @@ func main() {
 - 并发执行：可指定协程数量，超时时间，出错返回等可选项
 - 任务池管理
 - 机器信息获取(CPU，磁盘，内存占用)
-- cron 语法定期执行
+- 基于[cron语法](utime/README.md)的函数定期执行
 - 延期执行，ticker 执行，可选参数，比如最多执行次数，最长等待时间
 
 ## file
 > 文件相关操作
 - 文件、目录 读写 操作
 - xlsx: xlsx 文件处理
-- xls: xls 文件的读[建议优先考虑xlsx]
+- xls: xls 文件的读 [建议优先考虑xlsx]
 - csv: csv 文件处理
 
 ## archive
