@@ -10,8 +10,12 @@ memory是一个自研的基于内存的消息队列，支持按topic发送和消
   - 2)可以服务重启前，备份队列数据到文件，启动的时候，从文件加载到内存
 
 #### 流程图
-- ![avatar](../../image/mem_queue.png)
+![avatar](../../image/mem_queue.png)
+- 轮询逻辑
+  - 轮询是否有到了执行时间的消息时，查询队列里面最早需要执行的消息，如果没到时间，计算还需要多久，然后再次查询
+  - 如果等待的时间里面，有新消息加入，判断是否比原来的预期时间更早，则更新等待时间。
 
+#### 使用样例
 1. 在入口，比如 main.go 里面隐式导入 memory 包路径
 ```go 
 import _ "github.com/fankane/go-utils/plugin/queue/memory"
