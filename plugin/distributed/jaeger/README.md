@@ -10,7 +10,7 @@ plugins:
   distributed:  # 插件类型
     jaeger: # 插件名
       default:                # M连接名称：default，可以是其他名字
-        service_name: test001
+        service_name: hufan_ttt
         sampler_type: const
         sampler_param: 1
         log_span: true
