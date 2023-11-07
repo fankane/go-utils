@@ -21,6 +21,7 @@ plugins:
 ```
 
 3. 使用样例
+####  3.1 (单个服务)
 ```go
 func Root() {
 	ctx := GenTraceCTX(context.Background())
@@ -67,9 +68,47 @@ func C(ctx context.Context) {
 	time.Sleep(time.Millisecond * 400)
 }
 ```
-4. 效果展示
-- ![avatar](../../image/jaeger1.png)
-- ![avatar](../../image/jaeger_tag_log.png)
+
+####  效果展示 (单个服务)
+![avatar](../../image/jaeger1.png)
+![avatar](../../image/jaeger_tag_log.png)
+
+####  3.2 (Http调用)
+```go
+import (
+  "context"
+  "fmt"
+  
+  "github.com/fankane/go-utils/http"
+)
+
+// Client 端
+header, err := InjectHttpHeader(tracer.Tracer, span)
+if err != nil {
+  fmt.Println("Inject err:", err)
+  return
+}
+
+_, res, err := http.NewClient(http.WithTransport(j2.HttpTransport(nil))).CTXGet(ctx, "http://localhost:8888/test1", http.BaseHeader(header))
+if err != nil {
+  fmt.Println("get err:", err)
+  return
+}
+
+
+// Server 端
+span, err := traceClient.StartSpanFromHttpHeader(context.Background(), header, "GET_Server")
+if err != nil {
+    fmt.Println(err)
+    return
+}
+defer span.Finish()
+// do buiness
+
+```
+####  效果展示 (Http跨服务)
+![avatar](../../image/http_jaeger.png)
+
 5. jaeger UI docker安装
 ```shell
 docker run -d --name jaeger2 \

@@ -25,6 +25,7 @@ type Client struct {
 	Timeout   time.Duration
 	ShortConn bool //是否使用短连接
 	cli       *http.Client
+	Transport http.RoundTripper
 }
 
 type ClientOption func(client *Client)
@@ -60,6 +61,12 @@ func WithShortConn(shortConn bool) ClientOption {
 	}
 }
 
+func WithTransport(transport http.RoundTripper) ClientOption {
+	return func(client *Client) {
+		client.Transport = transport
+	}
+}
+
 func (c *Client) Post(url string, header map[string]string, data []byte) (int, []byte, error) {
 	return c.doRequest(http.MethodPost, url, data, header)
 }
@@ -79,9 +86,11 @@ func (c *Client) PostForm(url string, data url.Values) (int, []byte, error) {
 	}
 	return c.Post(url, map[string]string{ContentType: ContentTypeForm}, body)
 }
+
 func (c *Client) Get(url string) (int, []byte, error) {
 	return c.doRequest(http.MethodGet, url, nil, nil)
 }
+
 func (c *Client) GetWithHeader(url string, header map[string]string) (int, []byte, error) {
 	return c.doRequest(http.MethodGet, url, nil, header)
 }
@@ -126,7 +135,7 @@ func (c *Client) doRequest(method, url string, data []byte, header map[string]st
 		req, err = http.NewRequest(http.MethodPut, url, bytes.NewBuffer(data))
 	}
 	for key, val := range header {
-		req.Header.Set(key, val)
+		req.Header.Add(key, val)
 	}
 	c.setShortConn(req)
 	resp, err := c.cli.Do(req)
