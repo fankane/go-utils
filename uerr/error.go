@@ -35,6 +35,17 @@ func (e *Err) EShowMsg() string {
 	return e.ShowMsg
 }
 
+// EMsgPriority 优先显示showMsg,如果没有，展示 Emg
+func (e *Err) EMsgPriority() string {
+	if e == nil {
+		return ""
+	}
+	if e.ShowMsg != "" {
+		return e.ShowMsg
+	}
+	return e.Msg
+}
+
 func NewErr(msg string, opts ...Option) *Err {
 	e := &Err{Msg: msg}
 	for _, opt := range opts {
