@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/url"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -20,8 +21,8 @@ func NewWSClient(url url.URL, handler WsMessageHandler, opts ...WSOption) (*WSCo
 	if err != nil {
 		return nil, fmt.Errorf("websocket dial err:%s", err)
 	}
-	result := &WSCommonInfo{Conn: c}
-	handleMessage(result, handler)
+	result := &WSCommonInfo{Conn: c, Lock: &sync.Mutex{}}
+	handleMessage(wp, result, handler)
 	return result, nil
 }
 

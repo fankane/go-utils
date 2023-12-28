@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"sync"
 	"time"
 
 	"github.com/fankane/go-utils/goroutine"
+	"github.com/fankane/go-utils/utime"
 	"github.com/gorilla/websocket"
 )
 
@@ -27,6 +29,7 @@ const (
 
 var (
 	ErrConnClosed = errors.New("conn closed")
+	MsgNetClosed  = "use of closed network connection"
 )
 
 type wsParam struct {
@@ -35,6 +38,9 @@ type wsParam struct {
 	ReadBufferSize   int //不填使用 websocket 自带默认值 4096
 	WriteBufferSize  int //不填使用 websocket 自带默认值 4096
 	ResponseHeader   http.Header
+	ReadErrHandler   func(err error)
+	WriteErrHandler  func(err error)
+	DisablePingTest  bool
 }
 
 type WSOption func(p *wsParam)
@@ -52,6 +58,7 @@ type HandleWSParam struct {
 
 type WSCommonInfo struct {
 	Conn *websocket.Conn
+	Lock *sync.Mutex
 }
 
 var (
@@ -70,8 +77,8 @@ func ServerHandleWS(param HandleWSParam, opts ...WSOption) (*WSCommonInfo, error
 	if err != nil {
 		return nil, fmt.Errorf("upgrade err:%s", err)
 	}
-	result := &WSCommonInfo{Conn: c}
-	handleMessage(result, param.F)
+	result := &WSCommonInfo{Conn: c, Lock: &sync.Mutex{}}
+	handleMessage(wp, result, param.F)
 	return result, nil
 }
 
@@ -95,6 +102,21 @@ func ResponseHeader(header http.Header) WSOption {
 		p.ResponseHeader = header
 	}
 }
+func ReadErrHandler(handler func(err error)) WSOption {
+	return func(p *wsParam) {
+		p.ReadErrHandler = handler
+	}
+}
+func WriteErrHandler(handler func(err error)) WSOption {
+	return func(p *wsParam) {
+		p.WriteErrHandler = handler
+	}
+}
+func DisablePingTest(disable bool) WSOption {
+	return func(p *wsParam) {
+		p.DisablePingTest = disable
+	}
+}
 
 func (h *WSCommonInfo) Close() error {
 	if h == nil || h.Conn == nil {
@@ -103,14 +125,27 @@ func (h *WSCommonInfo) Close() error {
 	if err := h.Conn.Close(); err != nil {
 		return err
 	}
+	h.Conn = nil //关闭后，连接置空
 	return nil
 }
 
+func (h *WSCommonInfo) ReadMessage() (int, []byte, error) {
+	if h == nil || h.Conn == nil {
+		return 0, nil, ErrConnClosed
+	}
+	return h.Conn.ReadMessage()
+}
 func (h *WSCommonInfo) WriteMessage(messageType int, data []byte) error {
 	if h == nil || h.Conn == nil {
 		return ErrConnClosed
 	}
+	h.Lock.Lock()
+	defer h.Lock.Unlock()
 	return h.Conn.WriteMessage(messageType, data)
+}
+
+func IsNetWorkConnectClosed(err error) bool {
+	return strings.Contains(err.Error(), MsgNetClosed)
 }
 
 func getUpgrader(wp *wsParam) websocket.Upgrader {
@@ -127,13 +162,34 @@ func getUpgrader(wp *wsParam) websocket.Upgrader {
 	return upgrader
 }
 
-func handleMessage(wInfo *WSCommonInfo, f WsMessageHandler) {
+func handleMessage(wp *wsParam, wInfo *WSCommonInfo, f WsMessageHandler) {
+	done := false
+	if !wp.DisablePingTest {
+		go func() {
+			utime.TickerDo(time.Millisecond*500, func() error {
+				if err := wInfo.WriteMessage(PingMessage, []byte("ping")); err != nil {
+					log.Printf("ping message send err:%s", err)
+					done = true
+					wInfo.Conn = nil //ping 不通的时候，连接置空
+					return err
+				}
+				return nil
+			}, utime.WithReturn(true))
+		}()
+	}
+
 	go func() {
 		defer goroutine.Recover()
 		for {
-			mt, message, err := wInfo.Conn.ReadMessage()
+			if done {
+				return
+			}
+			mt, message, err := wInfo.ReadMessage()
 			if err != nil {
-				if websocket.IsCloseError(err, websocket.CloseNormalClosure,
+				if wp.ReadErrHandler != nil {
+					go wp.ReadErrHandler(err)
+				}
+				if err == ErrConnClosed || websocket.IsCloseError(err, websocket.CloseNormalClosure,
 					websocket.CloseAbnormalClosure, websocket.CloseNoStatusReceived) {
 					return
 				}
@@ -148,12 +204,14 @@ func handleMessage(wInfo *WSCommonInfo, f WsMessageHandler) {
 				wInfo.Conn.Close()
 				return
 			}
-			err = wInfo.Conn.WriteMessage(mt, resp)
+			err = wInfo.WriteMessage(mt, resp)
 			if err != nil {
-				log.Printf("read message err:%s", err)
+				if wp.WriteErrHandler != nil {
+					go wp.WriteErrHandler(err)
+				}
+				log.Printf("write message err:%s", err)
 				return
 			}
 		}
 	}()
-
 }

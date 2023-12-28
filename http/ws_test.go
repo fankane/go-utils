@@ -17,14 +17,27 @@ var (
 
 func TestWSServer(t *testing.T) {
 	http.HandleFunc(testPath, func(w http.ResponseWriter, r *http.Request) {
-		if _, err := ServerHandleWS(HandleWSParam{
+		cli, err := ServerHandleWS(HandleWSParam{
 			W: w,
 			R: r,
 			F: serverFunc,
-		}); err != nil {
+		})
+		if err != nil {
 			fmt.Println("handle ws err:", err)
 			return
 		}
+		go func() {
+			time.Sleep(time.Second * 3)
+			if err := cli.WriteMessage(TextMessage, []byte("我是胡帆...")); err != nil {
+				fmt.Println("111 err:", err)
+				return
+			}
+			time.Sleep(time.Second * 5)
+			if err := cli.WriteMessage(TextMessage, []byte("222 我是胡帆...")); err != nil {
+				fmt.Println(time.Now(), "222 err:", err)
+				return
+			}
+		}()
 		fmt.Println("ServerHandleWS success")
 	})
 	fmt.Println("server start success...")
@@ -43,21 +56,22 @@ func TestNewWSClient(t *testing.T) {
 		Path:   testPath,
 	}
 
-	cliInfo, err := NewWSClient(u, clientFunc)
+	cliInfo, err := NewWSClient(u, clientFunc, DisablePingTest(true))
 	if err != nil {
 		fmt.Println("NewWSClient err:", err)
 		return
 	}
 	fmt.Println("client create success")
-	for i := 0; i < 3; i++ {
+	for i := 0; i < 4; i++ {
 		if err = cliInfo.WriteMessage(TextMessage,
 			[]byte(fmt.Sprintf("client time:%s", time.Now().Format(utime.LayYMDHms1)))); err != nil {
 			fmt.Println("client write msg err:", err)
 			break
 		}
 		fmt.Println("send success")
-		time.Sleep(time.Second)
+		time.Sleep(time.Millisecond * 900)
 	}
+	fmt.Println(time.Now(), "client close")
 	if err = cliInfo.Close(); err != nil {
 		fmt.Println("write close msg err:", err)
 		return
