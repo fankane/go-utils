@@ -1,17 +1,12 @@
 package http
 
 import (
-	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
-	"strings"
 	"sync"
 	"time"
 
-	"github.com/fankane/go-utils/goroutine"
-	"github.com/fankane/go-utils/utime"
 	"github.com/gorilla/websocket"
 )
 
@@ -41,32 +36,18 @@ type wsParam struct {
 	ReadErrHandler   func(err error)
 	WriteErrHandler  func(err error)
 	DisablePingTest  bool
+	CheckOriginTrue  bool //处理跨域
+	CheckOrigin      func(r *http.Request) bool
 }
 
 type WSOption func(p *wsParam)
 
-// WsMessageHandler 服务端出来websocket方法，函数返回的Byte数组是写回客户端的
-// needResponse: 是否需要把 body 写回客户端
-// closeConn: 是否断开连接，不再读取数据
-type WsMessageHandler func(ctx context.Context, messageType int, p []byte) (needResponse, closeConn bool, body []byte)
-
 type HandleWSParam struct {
 	W http.ResponseWriter
 	R *http.Request
-	F WsMessageHandler
 }
 
-type WSCommonInfo struct {
-	Conn *websocket.Conn
-	Lock *sync.Mutex
-}
-
-var (
-	lock         = &sync.Mutex{}
-	globalWSConn = map[string]*WSCommonInfo{}
-)
-
-func ServerHandleWS(param HandleWSParam, opts ...WSOption) (*WSCommonInfo, error) {
+func ServerHandleWS(param HandleWSParam, opts ...WSOption) (*WSConnection, error) {
 	wp := &wsParam{}
 	for _, opt := range opts {
 		opt(wp)
@@ -77,8 +58,13 @@ func ServerHandleWS(param HandleWSParam, opts ...WSOption) (*WSCommonInfo, error
 	if err != nil {
 		return nil, fmt.Errorf("upgrade err:%s", err)
 	}
-	result := &WSCommonInfo{Conn: c, Lock: &sync.Mutex{}}
-	handleMessage(wp, result, param.F)
+	result := &WSConnection{Conn: c, Lock: &sync.Mutex{}}
+	if wp.ReadErrHandler != nil {
+		result.ReadErrHandler = wp.ReadErrHandler
+	}
+	if wp.WriteErrHandler != nil {
+		result.WriteErrHandler = wp.WriteErrHandler
+	}
 	return result, nil
 }
 
@@ -112,40 +98,23 @@ func WriteErrHandler(handler func(err error)) WSOption {
 		p.WriteErrHandler = handler
 	}
 }
+
+func CheckOriginTrue() WSOption {
+	return func(p *wsParam) {
+		p.CheckOriginTrue = true
+	}
+}
+
+// CheckOrigin 会覆盖CheckOriginTrue
+func CheckOrigin(co func(r *http.Request) bool) WSOption {
+	return func(p *wsParam) {
+		p.CheckOrigin = co
+	}
+}
 func DisablePingTest(disable bool) WSOption {
 	return func(p *wsParam) {
 		p.DisablePingTest = disable
 	}
-}
-
-func (h *WSCommonInfo) Close() error {
-	if h == nil || h.Conn == nil {
-		return ErrConnClosed
-	}
-	if err := h.Conn.Close(); err != nil {
-		return err
-	}
-	h.Conn = nil //关闭后，连接置空
-	return nil
-}
-
-func (h *WSCommonInfo) ReadMessage() (int, []byte, error) {
-	if h == nil || h.Conn == nil {
-		return 0, nil, ErrConnClosed
-	}
-	return h.Conn.ReadMessage()
-}
-func (h *WSCommonInfo) WriteMessage(messageType int, data []byte) error {
-	if h == nil || h.Conn == nil {
-		return ErrConnClosed
-	}
-	h.Lock.Lock()
-	defer h.Lock.Unlock()
-	return h.Conn.WriteMessage(messageType, data)
-}
-
-func IsNetWorkConnectClosed(err error) bool {
-	return strings.Contains(err.Error(), MsgNetClosed)
 }
 
 func getUpgrader(wp *wsParam) websocket.Upgrader {
@@ -159,59 +128,13 @@ func getUpgrader(wp *wsParam) websocket.Upgrader {
 	if wp.WriteBufferSize > 0 {
 		upgrader.WriteBufferSize = wp.WriteBufferSize
 	}
-	return upgrader
-}
-
-func handleMessage(wp *wsParam, wInfo *WSCommonInfo, f WsMessageHandler) {
-	done := false
-	if !wp.DisablePingTest {
-		go func() {
-			utime.TickerDo(time.Millisecond*500, func() error {
-				if err := wInfo.WriteMessage(PingMessage, []byte("ping")); err != nil {
-					log.Printf("ping message send err:%s", err)
-					done = true
-					wInfo.Conn = nil //ping 不通的时候，连接置空
-					return err
-				}
-				return nil
-			}, utime.WithReturn(true))
-		}()
-	}
-
-	go func() {
-		defer goroutine.Recover()
-		for {
-			if done {
-				return
-			}
-			mt, message, err := wInfo.ReadMessage()
-			if err != nil {
-				if wp.ReadErrHandler != nil {
-					go wp.ReadErrHandler(err)
-				}
-				if err == ErrConnClosed || websocket.IsCloseError(err, websocket.CloseNormalClosure,
-					websocket.CloseAbnormalClosure, websocket.CloseNoStatusReceived) {
-					return
-				}
-				log.Printf("read message err:%s", err)
-				return
-			}
-			ok, closed, resp := f(context.Background(), mt, message)
-			if !ok {
-				continue
-			}
-			if closed { //需要断开连接，不再读取数据
-				wInfo.Conn.Close()
-				return
-			}
-			err = wInfo.WriteMessage(mt, resp)
-			if err != nil {
-				if wp.WriteErrHandler != nil {
-					go wp.WriteErrHandler(err)
-				}
-				log.Printf("write message err:%s", err)
-				return
-			}
+	if wp.CheckOriginTrue {
+		upgrader.CheckOrigin = func(r *http.Request) bool {
+			return true
 		}
-	}()
+	}
+	if wp.CheckOrigin != nil {
+		upgrader.CheckOrigin = wp.CheckOrigin
+	}
+	return upgrader
 }

@@ -20,7 +20,6 @@ func TestWSServer(t *testing.T) {
 		cli, err := ServerHandleWS(HandleWSParam{
 			W: w,
 			R: r,
-			F: serverFunc,
 		})
 		if err != nil {
 			fmt.Println("handle ws err:", err)
@@ -52,16 +51,36 @@ func TestNewWSClient(t *testing.T) {
 	//testAddr := "127.0.0.1"
 	u := url.URL{
 		Scheme: "ws",
-		Host:   testHost,
-		Path:   testPath,
+		//Path:   testPath,
+		//Host:   testHost,
+		Host: "192.168.0.93:9001",
+		Path: "/g_hf_management/chat/ws/spark",
 	}
 
-	cliInfo, err := NewWSClient(u, clientFunc, DisablePingTest(true))
+	cliInfo, err := NewWSClient(u, DisablePingTest(true))
 	if err != nil {
 		fmt.Println("NewWSClient err:", err)
 		return
 	}
 	fmt.Println("client create success")
+	go func() {
+		if err := cliInfo.WriteMessage(TextMessage, []byte(fmt.Sprintf("今天天气怎么样？"))); err != nil {
+			fmt.Println("111 write err:", err)
+		}
+
+		time.Sleep(time.Second * 5)
+		fmt.Println("发送第二次。。。")
+		if err := cliInfo.WriteMessage(TextMessage, []byte(fmt.Sprintf("武汉工程大学各学院？"))); err != nil {
+			fmt.Println("222 write err:", err)
+		}
+	}()
+	go func() {
+		cliInfo.ListenMessage(func(mt int, data []byte) {
+			fmt.Println(string(data))
+		})
+	}()
+	time.Sleep(time.Hour)
+	return
 	for i := 0; i < 4; i++ {
 		if err = cliInfo.WriteMessage(TextMessage,
 			[]byte(fmt.Sprintf("client time:%s", time.Now().Format(utime.LayYMDHms1)))); err != nil {
@@ -102,7 +121,9 @@ func serverFunc(ctx context.Context, messageType int, p []byte) (needResponse, c
 
 func clientFunc(ctx context.Context, messageType int, p []byte) (needResponse, closeConn bool, body []byte) {
 	//fmt.Println("client receive msg type:", messageType)
-	fmt.Println("client receive msg body:", string(p))
+	//fmt.Println("client receive msg body:", string(p))
+	fmt.Println(string(p))
+	return false, false, nil
 	//time.Sleep(time.Second)
 	close := false
 	if string(p) == "close" {
