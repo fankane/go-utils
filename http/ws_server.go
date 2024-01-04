@@ -33,6 +33,7 @@ type wsParam struct {
 	ReadBufferSize   int //不填使用 websocket 自带默认值 4096
 	WriteBufferSize  int //不填使用 websocket 自带默认值 4096
 	ResponseHeader   http.Header
+	RequestHeader    http.Header
 	ReadErrHandler   func(err error)
 	WriteErrHandler  func(err error)
 	DisablePingTest  bool
@@ -86,6 +87,11 @@ func WriteBufferSize(size int) WSOption {
 func ResponseHeader(header http.Header) WSOption {
 	return func(p *wsParam) {
 		p.ResponseHeader = header
+	}
+}
+func RequestHeader(header http.Header) WSOption {
+	return func(p *wsParam) {
+		p.RequestHeader = header
 	}
 }
 func ReadErrHandler(handler func(err error)) WSOption {

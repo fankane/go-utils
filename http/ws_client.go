@@ -2,7 +2,6 @@ package http
 
 import (
 	"fmt"
-	"log"
 	"net/url"
 	"sync"
 
@@ -10,14 +9,13 @@ import (
 )
 
 func NewWSClient(url url.URL, opts ...WSOption) (*WSConnection, error) {
-	log.Printf("client connecting to %s", url.String())
 	wp := &wsParam{}
 	for _, opt := range opts {
 		opt(wp)
 	}
 
 	dialer := getDialer(wp)
-	c, _, err := dialer.Dial(url.String(), nil)
+	c, _, err := dialer.Dial(url.String(), wp.RequestHeader)
 	if err != nil {
 		return nil, fmt.Errorf("websocket dial err:%s", err)
 	}

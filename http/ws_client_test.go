@@ -3,11 +3,13 @@ package http
 import (
 	"context"
 	"fmt"
-	"github.com/fankane/go-utils/utime"
 	"net/http"
 	"net/url"
 	"testing"
 	"time"
+
+	"github.com/fankane/go-utils/str"
+	"github.com/fankane/go-utils/utime"
 )
 
 var (
@@ -17,6 +19,7 @@ var (
 
 func TestWSServer(t *testing.T) {
 	http.HandleFunc(testPath, func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println(str.ToJSON(r.Header))
 		cli, err := ServerHandleWS(HandleWSParam{
 			W: w,
 			R: r,
@@ -51,13 +54,15 @@ func TestNewWSClient(t *testing.T) {
 	//testAddr := "127.0.0.1"
 	u := url.URL{
 		Scheme: "ws",
-		//Path:   testPath,
-		//Host:   testHost,
-		Host: "192.168.0.93:9001",
-		Path: "/g_hf_management/chat/ws/spark",
+		Path:   testPath,
+		Host:   testHost,
+		//Host: "192.168.0.93:9001",
+		//Path: "/g_hf_management/chat/ws/spark",
 	}
 
-	cliInfo, err := NewWSClient(u, DisablePingTest(true))
+	h := http.Header{}
+	h.Add("Authorization", "xxx")
+	cliInfo, err := NewWSClient(u, DisablePingTest(true), RequestHeader(h))
 	if err != nil {
 		fmt.Println("NewWSClient err:", err)
 		return
