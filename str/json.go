@@ -48,14 +48,16 @@ func parseObject(valOf reflect.Value, result *JsonProperty) error {
 		result.Items = &JsonProperty{}
 		result.ItemLen = valOf.Len()
 		return parseSliceObject(valOf, result.Items)
-	case reflect.String, reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+	case reflect.String, reflect.Bool:
 		result.Type = valOf.Kind().String()
+	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		result.Type = "int"
 	case reflect.Float32, reflect.Float64:
 		if !strings.Contains(fmt.Sprintf("%v", valOf.Interface()), ".") {
 			result.Type = "int"
 			return nil
 		}
-		result.Type = valOf.Kind().String()
+		result.Type = "float"
 	default:
 		return fmt.Errorf("parseObject unsupport kind:%s, key:%s", valOf.Kind(), valOf.Interface())
 	}
@@ -82,14 +84,16 @@ func parseMapObject(valOf reflect.Value, result *JsonProperty) error {
 			}
 			result.Properties[key.Interface().(string)] = tempPro
 			parseSliceObject(val, tempPro.Items)
-		case reflect.String, reflect.Bool, reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+		case reflect.String, reflect.Bool:
 			result.Properties[key.Interface().(string)] = &JsonProperty{Type: val.Kind().String()}
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			result.Properties[key.Interface().(string)] = &JsonProperty{Type: "int"}
 		case reflect.Float32, reflect.Float64:
 			if !strings.Contains(fmt.Sprintf("%v", val.Interface()), ".") {
 				result.Properties[key.Interface().(string)] = &JsonProperty{Type: "int"}
 				continue
 			}
-			result.Properties[key.Interface().(string)] = &JsonProperty{Type: val.Kind().String()}
+			result.Properties[key.Interface().(string)] = &JsonProperty{Type: "float"}
 		default:
 			return fmt.Errorf("parseMapObject unsupport kind:%s, key:%s", val.Kind(), key.Interface())
 		}

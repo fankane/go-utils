@@ -29,18 +29,13 @@ var testJ = `
 			"kk": "hello"
 		}
 	},
-	"score":[1,2,3]
-}}
+	"score":[1,2,3],
+	"score2":[1.3,2.0,3]
+}
 ]
 `
 
 func TestParseJSONStr(t *testing.T) {
-	//res, err := ParseJSONStr(testJ)
-	//if err != nil {
-	//	fmt.Println("err", err)
-	//	return
-	//}
-	//fmt.Println(ToJSON(res))
 	res, err := ParseJSONProperty(testJ)
 	if err != nil {
 		fmt.Println("err", err)
