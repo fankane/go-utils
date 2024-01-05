@@ -79,11 +79,16 @@ func parseMapObject(valOf reflect.Value, result *JsonProperty) error {
 		case reflect.Slice:
 			tempPro := &JsonProperty{
 				Type:    JPArray,
-				Items:   &JsonProperty{},
 				ItemLen: val.Len(),
 			}
 			result.Properties[key.Interface().(string)] = tempPro
-			parseSliceObject(val, tempPro.Items)
+			if val.Len() == 0 {
+				continue
+			}
+			tempPro.Items = &JsonProperty{}
+			if err := parseSliceObject(val, tempPro.Items); err != nil {
+				return err
+			}
 		case reflect.String, reflect.Bool:
 			result.Properties[key.Interface().(string)] = &JsonProperty{Type: val.Kind().String()}
 		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
@@ -94,6 +99,8 @@ func parseMapObject(valOf reflect.Value, result *JsonProperty) error {
 				continue
 			}
 			result.Properties[key.Interface().(string)] = &JsonProperty{Type: "float"}
+		case reflect.Invalid: //如果是null时，反射的时候，会是Invalid类型，默认当做object
+			result.Properties[key.Interface().(string)] = &JsonProperty{Type: JPObject}
 		default:
 			return fmt.Errorf("parseMapObject unsupport kind:%s, key:%s", val.Kind(), key.Interface())
 		}

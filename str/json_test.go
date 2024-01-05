@@ -12,31 +12,21 @@ var testJ2 = `
 `
 
 var testJ = `
-[{
-	"key1": 12,
-	"key1-1": 12.2,
-	"key2": "hello",
-	"key3": [
-		{
-			"key4": true,
-			"key5": 3.14
-		}
-	],
-	"hufan": {
-		"name": "xx",
-		"age": 11,
-		"hi": {
-			"kk": "hello"
-		}
-	},
-	"score":[1,2,3],
-	"score2":[1.3,2.0,3]
-}
-]
+  {
+    "Center": [
+      116.410503,
+      39.911502
+    ],
+    "Children": [],
+    "Code": "110101",
+    "Level": "district",
+    "Name": "东城区",
+    "bound": {}
+  }
 `
 
 func TestParseJSONStr(t *testing.T) {
-	res, err := ParseJSONProperty(testJ)
+	res, err := ParseJSONProperty(testJ2)
 	if err != nil {
 		fmt.Println("err", err)
 		return
