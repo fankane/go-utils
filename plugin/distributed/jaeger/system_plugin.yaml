@@ -6,7 +6,7 @@ plugins:
         sampler_type: const
         sampler_param: 1
         log_spans: true
-        collector_endpoint: "http://192.168.0.93:14268/api/traces"
+        collector_endpoint: "http://192.168.99.45:14268/api/traces"
         buffer_flush_interval_ms: 100 #强制刷新时间间隔：毫秒, 不填默认 1000
         user: ""
         password: ""

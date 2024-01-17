@@ -44,6 +44,7 @@ func main() {
   - [NSQ 插件使用](plugin/queue/nsq/README.md)
   - [自研内存队列](plugin/queue/memory/README.md)
   - [Rabbit 插件使用](plugin/queue/rabbit/README.md)
+  - [Rocketmq 插件使用](plugin/queue/rocketmq/README.md)
 - 分布式
   - [etcd 插件使用](plugin/distributed/etcd/README.md)
   - [jaeger 插件使用](plugin/distributed/jaeger/README.md)

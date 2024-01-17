@@ -1,0 +1,31 @@
+plugins:
+  queue:  # 插件类型
+    rocketmq:
+      producers:
+        default:                     # producer 名
+          name_server:
+            - 192.168.99.45:9876
+          name_space: "hufan_ns"
+          group_name: "test_group"
+          retries: 3
+          send_msg_timeout_ms: 10000 # 发送超时，单位：ms
+        p2:
+          name_server:
+            - 192.168.99.45:9876
+          name_space: "hufan_ns2"
+          group_name: "test_group2"
+          retries: 3
+          send_msg_timeout_ms: 10000 # 发送超时，单位：ms
+      consumers:
+        c1:                          # consumer 名称
+          topics:
+            - test_topic_hf3
+          async_consume: false #异步消费
+          name_server:
+            - 192.168.99.45:9876
+          name_space: "hufan_ns"
+          group_name: "ggg028"
+          consume_from: 2
+          consume_timestamp: "20240117144500"
+          filter_history_for_init: true
+

@@ -7,7 +7,6 @@ import _ "github.com/fankane/go-utils/plugin/queue/kafka"
 2. 在运行文件根目录下的 **system_plugin.yaml** 文件(没有则新建一个)里面添加如下内容
 ```yaml
 plugins:
-plugins:
   queue:  # 插件类型
     kafka:
       producers:
