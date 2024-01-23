@@ -31,6 +31,7 @@ func main() {
 - Database
   - [MySQL 插件使用](./plugin/database/mysql/README.md)
   - [Postgres 插件使用](./plugin/database/postgres/README.md)
+  - [Oracle 插件使用](./plugin/database/oracle/README.md)
   - [Freecache插件使用](./plugin/database/freecache/README.md)
   - [Redis 插件使用](./plugin/database/redis/README.md)
   - [Elasticsearch 插件使用](./plugin/database/es/README.md)
