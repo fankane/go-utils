@@ -2,11 +2,11 @@ plugins:
   database:  # 插件类型: log
     postgres: # 插件名
       default:                # 连接名称：default，可以是其他名字
-        host: 192.168.0.221
-        port: 52369
+        host: 192.168.0.195
+        port: 24410
         user: postgres
         pwd: bjsh
-#        db_name: test_name
+        db_name: big_language_model
         conn_max_life_time_sec: 600  # 连接最大存活时间, 不填连接建立后一直不会关闭 单位：秒
         conn_max_idle_time_sec: 600  # 空闲连接最大存活时间, 单位：秒
         max_open_conn: 10            # 最大连接数, 不填默认无限制

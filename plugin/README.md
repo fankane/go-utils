@@ -22,7 +22,7 @@ plugins:
         max_backups: 7        # 最大日志备份数量
         compress: false       # 是否压缩，默认：false 
 
-  database:  # 插件类型: log
+  database:  # 插件类型
     mysql: # 插件名
       default:                # MySQL连接名称：default，可以是其他名字
         dsn: user:pwd@tcp(127.0.0.1:3306)/dbName?parseTime=true

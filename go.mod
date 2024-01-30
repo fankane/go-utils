@@ -2,8 +2,6 @@ module github.com/fankane/go-utils
 
 go 1.21
 
-toolchain go1.21.6
-
 require (
 	github.com/IBM/sarama v1.40.1
 	github.com/apache/rocketmq-client-go/v2 v2.1.2

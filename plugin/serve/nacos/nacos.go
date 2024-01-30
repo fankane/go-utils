@@ -8,7 +8,6 @@ import (
 	"github.com/nacos-group/nacos-sdk-go/clients"
 	"github.com/nacos-group/nacos-sdk-go/common/constant"
 	"github.com/nacos-group/nacos-sdk-go/vo"
-	"github.com/spf13/viper"
 	"gopkg.in/yaml.v3"
 )
 
@@ -60,7 +59,7 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 			Cli = cli
 		}
 	}
-	return viper.ReadInConfig()
+	return nil
 }
 
 func NewClient(conf *Config) (*Client, error) {

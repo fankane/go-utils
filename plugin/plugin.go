@@ -2,8 +2,9 @@ package plugin
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
+	"strings"
 	"sync"
 
 	"github.com/fankane/go-utils/goroutine"
@@ -56,7 +57,7 @@ func Load(opts ...Option) error {
 		opt(params)
 	}
 	// 默认读取 system_plugin.yaml 文件，来加载配置
-	res, err := ioutil.ReadFile(params.ConfigFile)
+	res, err := os.ReadFile(params.ConfigFile)
 	if err != nil {
 		return fmt.Errorf("read plugin config file err:%s, filepath:%s", err, params.ConfigFile)
 	}
@@ -67,7 +68,8 @@ func Load(opts ...Option) error {
 	if pluginConf == nil || len(pluginConf.Plugins) == 0 {
 		return fmt.Errorf("plugin is empty")
 	}
-	if err = pluginConf.Plugins.Setup(params.IgnoreErr); err != nil {
+	//if err = pluginConf.Plugins.Setup(params.IgnoreErr); err != nil {
+	if err = InitPlugins(pluginConf.Plugins, params.IgnoreErr); err != nil {
 		return fmt.Errorf("setup err:%s", err)
 	}
 	return nil
@@ -89,6 +91,9 @@ func (c Config) Setup(ignoreErr bool) error {
 	for typT, factories := range c {
 		for pluginNameT, confT := range factories {
 			typ, pluginName, conf := typT, pluginNameT, confT
+			if strings.Contains(pluginName, "-") {
+				return fmt.Errorf("pluginName:%s contain forbbiden char \"-\"", pluginName)
+			}
 			fs = append(fs, func() error {
 				f := Get(typ, pluginName)
 				if f == nil {
