@@ -15,11 +15,13 @@ type OptParams struct {
 	Max             int           //协程最大数量, 默认无穷大
 	ReturnWhenError bool          //当出错的时候返回, 默认不返回
 	Timeout         time.Duration //超时后结束，默认没有超时时间
+	DisableRecovery bool          //不捕获panic
 }
 
 type Option func(params *OptParams)
 
-/**
+/*
+*
 Exec 并发执行 function
 可指定最大协程数量，超时时间，错误是否返回
 */
@@ -40,6 +42,9 @@ func Exec(fs []func() error, opts ...Option) error {
 	errChan := make(chan error)
 	finish := make(chan bool)
 	go func() {
+		if !params.DisableRecovery {
+			defer Recover()
+		}
 		wg := sync.WaitGroup{}
 		for i := 0; i < len(fs); i++ {
 			wg.Add(1)
@@ -85,5 +90,11 @@ func WithReturnWhenError(returnWhenError bool) Option {
 func WithTimeout(timeout time.Duration) Option {
 	return func(params *OptParams) {
 		params.Timeout = timeout
+	}
+}
+
+func DisableRecovery(disable bool) Option {
+	return func(params *OptParams) {
+		params.DisableRecovery = disable
 	}
 }
