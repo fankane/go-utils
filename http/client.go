@@ -67,6 +67,13 @@ func WithTransport(transport http.RoundTripper) ClientOption {
 	}
 }
 
+func (c *Client) GetCli() *http.Client {
+	if c == nil {
+		return nil
+	}
+	return c.cli
+}
+
 func (c *Client) Post(url string, header map[string]string, data []byte) (int, []byte, error) {
 	return c.doRequest(http.MethodPost, url, data, header)
 }
