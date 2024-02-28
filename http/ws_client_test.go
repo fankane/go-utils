@@ -54,12 +54,15 @@ func TestNewWSClient(t *testing.T) {
 	//testAddr := "127.0.0.1"
 	u := url.URL{
 		Scheme: "ws",
-		Path:   testPath,
-		Host:   testHost,
-		//Host: "192.168.0.93:9001",
-		//Path: "/g_hf_management/chat/ws/spark",
+		//Path:   testPath,
+		//Host:   testHost,
+		Host: "192.168.99.45:9002",
+		Path: "/g_hf_management/chat/ws/spark",
 	}
-
+	query := url.Values{}
+	query.Set("user_name", "hufan")
+	u.RawQuery = query.Encode()
+	fmt.Println(u.String())
 	h := http.Header{}
 	h.Add("Authorization", "xxx")
 	cliInfo, err := NewWSClient(u, DisablePingTest(true), RequestHeader(h))
@@ -80,7 +83,8 @@ func TestNewWSClient(t *testing.T) {
 		}
 	}()
 	go func() {
-		cliInfo.ListenMessage(func(mt int, data []byte) {
+
+		cliInfo.ListenMessage(context.Background(), func(ctx context.Context, mt int, data []byte) {
 			fmt.Println(string(data))
 		})
 	}()
@@ -135,4 +139,47 @@ func clientFunc(ctx context.Context, messageType int, p []byte) (needResponse, c
 		close = true
 	}
 	return false, close, []byte(fmt.Sprintf("client time:%s", time.Now().Format(utime.LayYMDHms1)))
+}
+
+func TestNewWSClient2(t *testing.T) {
+	//testAddr := "127.0.0.1"
+	u := url.URL{
+		Scheme: "ws",
+		Host:   "192.168.99.45:9001",
+		Path:   "/big_language_model/v1/user/open_window",
+	}
+
+	//h := http.Header{}
+	//h.Add("Authorization", "xxx")
+	query := url.Values{}
+	query.Set("user_name", "hufan")
+	u.RawQuery = query.Encode()
+	cliInfo, err := NewWSClient(u, DisablePingTest(true), HandshakeTimeout(time.Second*5))
+	if err != nil {
+		fmt.Println("NewWSClient err:", err)
+		return
+	}
+	fmt.Println("client create success")
+	go func() {
+		dd := `{
+    "user_name":"hufan",
+    "window_id":"ccc",
+    "plugin":"base",
+    "content":"今天天气怎么样",
+    "session_id":"e8007e77-6b59-4f7b-a931-4227d4898660"
+}`
+
+		if err := cliInfo.WriteMessage(TextMessage, []byte(fmt.Sprintf(dd))); err != nil {
+			fmt.Println("111 write err:", err)
+		}
+	}()
+	go func() {
+		ctx := context.Background()
+		cliInfo.ListenMessage(ctx, func(ctx context.Context, mt int, data []byte) {
+			fmt.Println(string(data))
+		})
+	}()
+	time.Sleep(time.Hour)
+	return
+
 }

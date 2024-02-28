@@ -1,6 +1,7 @@
 package http
 
 import (
+	"context"
 	"strings"
 	"sync"
 
@@ -57,7 +58,7 @@ func (h *WSConnection) WriteMessage(messageType int, data []byte) error {
 }
 
 // ListenMessage 循环不断读取数据流
-func (h *WSConnection) ListenMessage(handler func(mt int, data []byte)) error {
+func (h *WSConnection) ListenMessage(ctx context.Context, handler func(ctx context.Context, mt int, data []byte)) error {
 	if h == nil || h.Conn == nil {
 		return ErrConnClosed
 	}
@@ -71,7 +72,7 @@ func (h *WSConnection) ListenMessage(handler func(mt int, data []byte)) error {
 			if err != nil {
 				return
 			}
-			go handler(messageType, message)
+			go handler(ctx, messageType, message)
 		}
 	}()
 	return nil
