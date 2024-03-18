@@ -152,7 +152,8 @@ func TestNewWSClient2(t *testing.T) {
 	//h := http.Header{}
 	//h.Add("Authorization", "xxx")
 	query := url.Values{}
-	query.Set("user_name", "hufan")
+	query.Set("user_name", "admin")
+	query.Set("session_id", "b13641ba-98ad-492e-8ae2-ccaf298354a2")
 	u.RawQuery = query.Encode()
 	cliInfo, err := NewWSClient(u, DisablePingTest(true), HandshakeTimeout(time.Second*5))
 	if err != nil {
@@ -162,11 +163,10 @@ func TestNewWSClient2(t *testing.T) {
 	fmt.Println("client create success")
 	go func() {
 		dd := `{
-    "user_name":"hufan",
-    "window_id":"ccc",
+    "user_name":"test",
     "plugin":"base",
-    "content":"今天天气怎么样",
-    "session_id":"e8007e77-6b59-4f7b-a931-4227d4898660"
+    "content":"diit是哪个公司缩写",
+    "session_id":"b13641ba-98ad-492e-8ae2-ccaf298354a2"
 }`
 
 		if err := cliInfo.WriteMessage(TextMessage, []byte(fmt.Sprintf(dd))); err != nil {
@@ -175,11 +175,43 @@ func TestNewWSClient2(t *testing.T) {
 	}()
 	go func() {
 		ctx := context.Background()
+
+		//var sID string
+		//idx := 0
 		cliInfo.ListenMessage(ctx, func(ctx context.Context, mt int, data []byte) {
 			fmt.Println(string(data))
+			//s := &SSS{}
+			//json.Unmarshal(data, s)
+			//sID = s.SessionID
+			//if s.Answer.Status == 2 {
+			//	idx = 1
+			//}
 		})
+		//		for idx <= 0 {
+		//			time.Sleep(time.Second)
+		//		}
+		//		c2 := `{
+		//    "user_name":"test",
+		//    "plugin":"base",
+		//    "content":"用途有哪些",
+		//    "session_id":"%s"
+		//}`
+		//		c2 = fmt.Sprintf(c2, sID)
+		//		fmt.Println("开始二次问问题：c2:", c2)
+		//		if err := cliInfo.WriteMessage(TextMessage, []byte(fmt.Sprintf(c2))); err != nil {
+		//			fmt.Println("111 write err:", err)
+		//		}
 	}()
 	time.Sleep(time.Hour)
 	return
 
+}
+
+type SSS struct {
+	SessionID string `json:"session_id"`
+	Answer    struct {
+		Status  int    `json:"status"`
+		Seq     int    `json:"seq"`
+		Content string `json:"content"`
+	} `json:"answer"`
 }

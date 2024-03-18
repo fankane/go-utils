@@ -36,6 +36,7 @@ func main() {
   - [Redis 插件使用](./plugin/database/redis/README.md)
   - [Elasticsearch 插件使用](./plugin/database/es/README.md)
   - [Neo4j 插件使用](./plugin/database/neo4j/README.md)
+  - [InfluxDB 插件使用](./plugin/database/influx/README.md)
 - 服务
   - [Pprof 插件使用](./plugin/serve/pprof/README.md)
   - [Conf 插件使用](./plugin/serve/conf/README.md)
