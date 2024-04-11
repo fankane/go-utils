@@ -32,7 +32,8 @@ var (
 
 type LoadParam struct {
 	ConfigFile string
-	IgnoreErr  bool //忽略插件加载失败场景，默认false
+	IgnoreErr  bool   //忽略插件加载失败场景，默认false
+	ConfigByte []byte //优先取此值加载，没有则尝试去configFile读取
 }
 
 type Option func(param *LoadParam)
@@ -40,6 +41,11 @@ type Option func(param *LoadParam)
 func ConfigFile(file string) Option {
 	return func(param *LoadParam) {
 		param.ConfigFile = file
+	}
+}
+func ConfigByte(data []byte) Option {
+	return func(param *LoadParam) {
+		param.ConfigByte = data
 	}
 }
 
@@ -51,16 +57,24 @@ func IgnoreErr(ignore bool) Option {
 
 func Load(opts ...Option) error {
 	params := &LoadParam{
-		ConfigFile: "system_plugin.yaml", //默认文件路径
+		ConfigFile: "system_plugin.yaml", //默认文件路径，默认读取 system_plugin.yaml 文件，来加载配置
 	}
 	for _, opt := range opts {
 		opt(params)
 	}
-	// 默认读取 system_plugin.yaml 文件，来加载配置
-	res, err := os.ReadFile(params.ConfigFile)
-	if err != nil {
-		return fmt.Errorf("read plugin config file err:%s, filepath:%s", err, params.ConfigFile)
+	var (
+		res []byte
+		err error
+	)
+	if len(params.ConfigByte) > 0 {
+		res = params.ConfigByte
+	} else {
+		res, err = os.ReadFile(params.ConfigFile)
+		if err != nil {
+			return fmt.Errorf("read plugin config file err:%s, filepath:%s", err, params.ConfigFile)
+		}
 	}
+
 	pluginConf := &GlobalConfig{}
 	if err = yaml.Unmarshal(res, &pluginConf); err != nil {
 		return fmt.Errorf("yaml unmarshal err:%s", err)
