@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"strings"
 	"sync"
 	"time"
 
+	"github.com/fankane/go-utils/goroutine"
 	"github.com/fankane/go-utils/plugin"
 	"github.com/fankane/go-utils/utime"
 	"go.uber.org/atomic"
@@ -119,6 +121,41 @@ func StopConsumer(topic string) error {
 		return errors.New("can not stop, not found topic info")
 	}
 	topicInfo.consumerChan <- nil //写入一条nil，表示关闭，不再消费
+	return nil
+}
+
+// ClearTopicMsg 清空Topic所有未到消费时间的消息
+func ClearTopicMsg(topic string) error {
+	topicInfo, ok := globalMemQueue.topicInfo[topic]
+	if !ok {
+		return errors.New("not found topic info")
+	}
+	topicInfo.msgSlice.Clear()
+	return nil
+}
+
+// ClearAllTopicMsg 清空所有未到消费时间的消息
+func ClearAllTopicMsg() error {
+	funcList := make([]func() error, 0)
+	errMsg := make([]string, 0)
+	cl := &sync.Mutex{}
+	for topic, _ := range globalMemQueue.topicInfo {
+		clearTopicName := topic
+		funcList = append(funcList, func() error {
+			if err := ClearTopicMsg(clearTopicName); err != nil {
+				cl.Lock()
+				errMsg = append(errMsg, fmt.Sprintf("%s clear failed %s", clearTopicName, err))
+				cl.Unlock()
+			}
+			return nil
+		})
+	}
+	if err := goroutine.Exec(funcList); err != nil {
+		return fmt.Errorf("concurrent clear err:%s", err)
+	}
+	if len(errMsg) > 0 {
+		return fmt.Errorf(strings.Join(errMsg, ";"))
+	}
 	return nil
 }
 

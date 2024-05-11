@@ -11,6 +11,7 @@ type MessageList interface {
 	pop() *Message
 	Len() int
 	First() *Message
+	Clear()
 }
 
 type messageListImpl struct {
@@ -79,6 +80,17 @@ func (m *messageListImpl) First() *Message {
 
 func (m *messageListImpl) Len() int {
 	return m.list.Len()
+}
+
+func (m *messageListImpl) Clear() {
+	if m.list.Len() == 0 {
+		return
+	}
+	var next *list.Element
+	for e := m.list.Front(); e != nil; e = next {
+		next = e.Next()
+		m.list.Remove(e)
+	}
 }
 
 func wrapMessage(value []byte, delay time.Duration) *Message {
