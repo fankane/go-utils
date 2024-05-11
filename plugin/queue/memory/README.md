@@ -35,6 +35,8 @@ plugins:
 
 3. 在需要使用的地方，直接使用
 ```go
+// 如果不以插件形式使用，则需要手动调用一次 InitQueue()
+
 // 发送消息到队列
 NewProducer().SendMessage(topic, []byte("hello"), Delay(time.Second)) //发送消息到队列，延迟1秒消费
 

@@ -28,6 +28,7 @@ func LoadFileData(f string) error {
 			return err
 		}
 	}
+	inited = true
 	return nil
 }
 

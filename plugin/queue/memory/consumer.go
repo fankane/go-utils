@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"log"
+
+	"github.com/fankane/go-utils/goroutine"
 )
 
 const (
@@ -41,6 +43,7 @@ func daemonConsume(topic string, h Handler) {
 		return
 	}
 	go func() {
+		defer goroutine.Recover()
 		for {
 			select {
 			case msg := <-msgTopic.consumerChan:
@@ -50,8 +53,8 @@ func daemonConsume(topic string, h Handler) {
 				ctx := context.Background()
 				ctx = context.WithValue(ctx, CtxPushTs, msg.pushTs)
 				ctx = context.WithValue(ctx, CtxDelay, msg.Delay)
-				go delMessage(topic, msg)
 				h(ctx, msg.Body)
+				go delMessage(topic, msg) //消费一个消息，在全局记录里面，减去这个消息占用的数量，内存大小等信息
 			}
 		}
 	}()

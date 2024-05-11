@@ -138,9 +138,15 @@ type memTopic struct { //topic信息
 	msgLen       *atomic.Int64 //消息条数
 }
 
-var globalMemQueue *MemQueue
+var (
+	globalMemQueue *MemQueue
+	inited         bool
+)
 
 func InitQueue(conf *Config) error {
+	if inited {
+		return nil
+	}
 	if conf.BufferSize <= 0 {
 		conf.BufferSize = 1000
 	}
@@ -154,7 +160,7 @@ func InitQueue(conf *Config) error {
 	if conf.LoadAtBegin {
 		return LoadFileData(conf.LoadFile)
 	}
-
+	inited = true
 	return nil
 }
 
