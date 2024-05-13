@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"sync"
 	"time"
 
 	"github.com/fankane/go-utils/goroutine"
@@ -50,6 +51,19 @@ func DoPrintCost(ctx context.Context, f func() error, opts ...PrintOption) error
 	return f()
 }
 
+func DoWithLock(f func(), opts ...LockOption) {
+	params := &LockParam{}
+	for _, opt := range opts {
+		opt(params)
+	}
+	if params.locker == nil {
+		params.locker = &sync.Mutex{}
+	}
+	params.locker.Lock()
+	defer params.locker.Unlock()
+	f()
+}
+
 type PrintParam struct {
 	name     string
 	traceLog *log.Log        //没有log默认使用fmt.Print打印
@@ -71,5 +85,16 @@ func TraceLog(log *log.Log) PrintOption {
 func TraceCTX(traceCtx context.Context) PrintOption {
 	return func(param *PrintParam) {
 		param.traceCtx = traceCtx
+	}
+}
+
+type LockParam struct {
+	locker sync.Locker
+}
+type LockOption func(param *LockParam)
+
+func Locker(locker sync.Locker) LockOption {
+	return func(param *LockParam) {
+		param.locker = locker
 	}
 }
