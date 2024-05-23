@@ -1,5 +1,14 @@
 package slice
 
+func InInterfaceSlice(target interface{}, slice []interface{}) bool {
+	for _, t := range slice {
+		if t == target {
+			return true
+		}
+	}
+	return false
+}
+
 // InInterfaces 数组里存在某个值
 func InInterfaces(target interface{}, slice interface{}) bool {
 	switch target.(type) {
