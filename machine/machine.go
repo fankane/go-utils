@@ -1,11 +1,13 @@
 package machine
 
 import (
+	"os"
 	"time"
 
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/disk"
 	"github.com/shirou/gopsutil/mem"
+	"github.com/shirou/gopsutil/process"
 )
 
 const (
@@ -64,4 +66,40 @@ func GetDiskUsedPercent() float64 {
 		return invalidPercent
 	}
 	return diskInfo.UsedPercent
+}
+
+// GetSelfCPUPercent 获取自身进程使用CPU百分比
+func GetSelfCPUPercent() float64 {
+	return GetPIDCPUPercent(int32(os.Getpid()))
+}
+
+// GetPIDCPUPercent 获取指定进程使用CPU百分比
+func GetPIDCPUPercent(pid int32) float64 {
+	p, err := process.NewProcess(pid)
+	if err != nil {
+		return invalidPercent
+	}
+	res, err := p.CPUPercent()
+	if err != nil {
+		return invalidPercent
+	}
+	return res
+}
+
+// GetSelfMemory 获取自身进程使用内存数据
+func GetSelfMemory() uint64 {
+	return GetPIDMemory(int32(os.Getpid()))
+}
+
+// GetPIDMemory 获取指定进程使用内存大小
+func GetPIDMemory(pid int32) uint64 {
+	p, err := process.NewProcess(pid)
+	if err != nil {
+		return invalidBytes
+	}
+	res, err := p.MemoryInfo()
+	if err != nil {
+		return invalidBytes
+	}
+	return res.RSS
 }

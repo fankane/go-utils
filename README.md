@@ -4,7 +4,7 @@
 > 如果你需要什么常见的功能，这里没有的，可提起pull request, 或者联系本人添加 <br>
 > 邮箱: fanhu1116@qq.com 
 
-## plugin
+## plugin【插件使用】
 #### <font style="color: red">不需要写代码</font> 将一些基础功能，通过配置文件的形式，在服务启动的时候，自动加载，需要的时候，直接使用； <br>
 
 ```go
@@ -51,46 +51,27 @@ func main() {
   - [etcd 插件使用](plugin/distributed/etcd/README.md)
   - [jaeger 插件使用](plugin/distributed/jaeger/README.md)
 
-## uerr
-> 自定义error，支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
 
-## http
-> http 方法包装
-- [websocket使用说明](http/README.md)
-
-## 函数执行
-- 重试执行
-- 超时限制执行
-- 并发执行：可指定协程数量，超时时间，出错返回等可选项
-- 任务池管理
-- 机器信息获取(CPU，磁盘，内存占用)
-- 基于[cron语法](utime/README.md)的函数定期执行
-- 延期执行，ticker 执行，可选参数，比如最多执行次数，最长等待时间
-
-## file
-> 文件相关操作
-- 文件、目录 读写 操作
-- xlsx: xlsx 文件处理
-- xls: xls 文件的读 [建议优先考虑xlsx]
-- csv: csv 文件处理
-
-## archive
-> 压缩文件相关操作
-- rar: rar文件的相关操作
-  - UnRar: 解压 rar 文件
-- zip: zip文件的相关操作
-  - CreateZip: 创建 zip 文件
-  - UnZip: 解压 zip 文件
-
-## string
-> 字符串操作
-  - 字符串转换、中文字符串处理
-  - uuid
-
-## slice
-- contain
-  - InInterfaces,InStrings, InInts 等，判定某个切片里面是否存在某个具体的值; 支持基础类型 int, string, float
-- transform
-  - ToInterfaceSli: 将普通切片转换成interface切片，例如 []int -> []interface; 支持基础类型 int, string, float
-- compare
-  - StrSliContentEqual: 比较两个字符串切片内容是否相同，忽略顺序
+## 常用工具
+### 函数执行
+  - 多次运行 【可选：重试次数，超时时间，间隔时间】
+  - 单次运行 【加锁，执行耗时，最长等待】
+  - 并发执行 【协程池，任务管理器】
+  - 定时执行、延迟执行、ticker执行
+### 文件操作
+  - csv, xls, xlsx 读写
+  - rar, zip 读写
+  - 文件、目录 读写 操作
+### 数据结构
+  - 类型断言 【数字型，数组/切片型】
+  - 类型转换 【slice, string, float, int, interface, bytes 等之间的转换】
+  - 切片元素包含关系
+  - JSON 字符串转 类JSONSchema
+  - 中文字符串处理【长度获取，截取子串】
+  - error 封装：支持code、msg、showMsg ;同时也实现了Error方法，可跟原生 error 兼容使用
+### 硬件信息
+  - CPU, 内存信息, 磁盘信息 【机器整体、指定进程、当前进程】
+### 网络
+  - Http 封装
+  - [Websocket使用说明](http/README.md)
+  - SSE[server sent events] 封装
