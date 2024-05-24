@@ -34,10 +34,19 @@ plugins:
 ```
 
 3. 在需要使用的地方，直接使用
-```go
-使用默认 default 的log, 直接如下
-redis.Client.Get()
+    ```go
+    使用默认 default 的log, 直接如下
+    redis.Client.Get()
+    
+    使用指定redis连接, 如下:
+    redis.GetClient("client2").Get()
+    ```
 
-使用指定MySQL连接, 如下:
-redis.GetClient("client2").Get()
-```
+4. Redis分布式锁
+    > 基于lua脚本实现
+    ```go
+    lock := NewRdsLock(redis.Client)
+    lock.Lock("key") // 加锁
+    lock.Release() // 释放锁
+    
+    ```

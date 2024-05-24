@@ -73,5 +73,5 @@ func main() {
   - CPU, 内存信息, 磁盘信息 【机器整体、指定进程、当前进程】
 ### 网络
   - Http 封装
-  - [Websocket使用说明](http/README.md)
+  - [Websocket封装](http/README.md)
   - SSE[server sent events] 封装
