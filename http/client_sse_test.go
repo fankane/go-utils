@@ -2,17 +2,16 @@ package http
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"sync"
 	"testing"
-	"time"
 )
 
 func TestBLSse(t *testing.T) {
-	url := "http://192.168.0.17:7861/chat/chat"
+	//url := "http://192.168.0.17:7861/chat/chat"
+	url := "http://192.168.99.38:9001/g_hf_management/wechat/sse/status"
 	ctx := context.Background()
-	code, resChan, err := NewClient(WithTimeout(time.Second*5)).SSEPost(ctx, url, []byte(tJSON))
+	code, resChan, err := NewClient().SSEGet(ctx, url)
 	if err != nil {
 		fmt.Println("err:", err)
 		return
@@ -27,13 +26,13 @@ func TestBLSse(t *testing.T) {
 				fmt.Println("--------Done--------")
 				return
 			}
-			//fmt.Println(e.Data)
-			tempRes := &TTR{}
-			if err = json.Unmarshal(e.Data, tempRes); err != nil {
-				fmt.Println("json err:", err)
-				return
-			}
-			fmt.Println(tempRes.Text)
+			fmt.Println(string(e.Data))
+			//tempRes := &TTR{}
+			//if err = json.Unmarshal(e.Data, tempRes); err != nil {
+			//	fmt.Println("json err:", err)
+			//	return
+			//}
+			//fmt.Println(tempRes.Text)
 		}
 	}()
 	wg.Wait()

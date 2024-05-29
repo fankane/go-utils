@@ -35,6 +35,7 @@ var (
 	preEvent   = []byte("event:")
 	preRetry   = []byte("retry:")
 	preComment = []byte(":")
+	splitMsg   = "\n\n"
 )
 
 type SSEEvent struct {
