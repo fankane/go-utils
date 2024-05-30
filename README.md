@@ -74,4 +74,4 @@ func main() {
 ### 网络
   - Http 封装
   - [Websocket封装](http/README.md)
-  - SSE[server sent events] 封装
+  - [SSE[server sent events] 封装封装](http/SSE_README.md)
