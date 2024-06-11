@@ -31,11 +31,15 @@ func (l *Log) SetLevel(level zapcore.Level) {
 }
 
 func NewTraceCtx() context.Context {
+	return SetCTXTrace(context.Background())
+}
+
+func SetCTXTrace(ctx context.Context) context.Context {
 	traceID := strings.ReplaceAll(str.UUID(), "-", "")
 	if len(traceID) > 12 {
 		traceID = traceID[0:12] //取uuid前12位
 	}
-	return context.WithValue(context.Background(), ctxTrace, traceID)
+	return context.WithValue(ctx, ctxTrace, traceID)
 }
 
 func getTrace(ctx context.Context) string {
