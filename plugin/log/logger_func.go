@@ -35,6 +35,10 @@ func NewTraceCtx() context.Context {
 }
 
 func SetCTXTrace(ctx context.Context) context.Context {
+	oldTrace := getTrace(ctx)
+	if oldTrace != "" {
+		return ctx
+	}
 	traceID := strings.ReplaceAll(str.UUID(), "-", "")
 	if len(traceID) > 12 {
 		traceID = traceID[0:12] //取uuid前12位
