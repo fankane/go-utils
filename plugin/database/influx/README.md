@@ -1,5 +1,5 @@
 ### InfluxDB
-1. 在入口，比如 main.go 里面隐式导入mysql包路径
+1. 在入口，比如 main.go 里面隐式导入包路径
 ```go 
 import _ "github.com/fankane/go-utils/plugin/database/influx"
 ```
