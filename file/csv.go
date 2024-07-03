@@ -12,18 +12,22 @@ func WriteCSV(filePath string, lines [][]string) error {
 		err     error
 	)
 	defer csvFile.Close()
+	isNewFile := false
 	if !Exist(filePath) {
 		csvFile, err = os.Create(filePath)
+		isNewFile = true
 	} else {
 		csvFile, err = os.OpenFile(filePath, os.O_RDWR|os.O_APPEND|os.O_CREATE, 0666)
 	}
 	if err != nil {
 		return fmt.Errorf("open file [%s] err:%s", filePath, err)
 	}
-	// 写入UTF-8 BOM头，防止Excel直接大家时中文乱码
-	_, err = csvFile.WriteString("\xEF\xBB\xBF")
-	if err != nil {
-		return fmt.Errorf("write utf-8 header err:%s", err)
+	if isNewFile {
+		// 写入UTF-8 BOM头，防止Excel直接打开时中文乱码
+		_, err = csvFile.WriteString("\xEF\xBB\xBF")
+		if err != nil {
+			return fmt.Errorf("write utf-8 header err:%s", err)
+		}
 	}
 	w := csv.NewWriter(csvFile)
 	if err = w.WriteAll(lines); err != nil {
