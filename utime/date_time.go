@@ -1,6 +1,7 @@
 package utime
 
 import (
+	"math"
 	"time"
 )
 
@@ -33,4 +34,8 @@ func GetUTC8Loc() *time.Location {
 		return nil
 	}
 	return location
+}
+
+func DiffDays(start, end time.Time) int {
+	return int(math.Round(end.Sub(start).Hours() / 24))
 }

@@ -2,11 +2,11 @@ plugins:
   database:  # 插件类型
     mysql: # 插件名
       default:                # MySQL连接名称：default，可以是其他名字
-        host: 192.168.0.93
+        host: 192.168.99.38
         port: 3306
         user: root
         pwd: 123456
-        db_name: hufan_docker
+        db_name: hufanDemo
         params: parseTime=true
         conn_max_life_time_sec: 600  # 连接最大存活时间, 不填连接建立后一直不会关闭 单位：秒
         conn_max_idle_time_sec: 600  # 空闲连接最大存活时间, 单位：秒
