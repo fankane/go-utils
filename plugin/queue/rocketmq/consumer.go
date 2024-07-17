@@ -3,6 +3,7 @@ package rocketmq
 import (
 	"context"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/apache/rocketmq-client-go/v2"
@@ -21,7 +22,35 @@ const (
 )
 
 type Consumer struct {
-	PC rocketmq.PushConsumer
+	PC   rocketmq.PushConsumer
+	conf *ConsumerConf
+}
+
+type TopicCreateInfo struct {
+	BrokerAddr string
+	H          Handler
+}
+
+type ConsumeParams struct {
+	AutoCreateTopic bool // auto create topic when not exists
+	TopicHandler    map[string]TopicCreateInfo
+}
+
+type ConsumeOption func(params *ConsumeParams)
+
+func AutoCreateTopic(a bool) ConsumeOption {
+	return func(params *ConsumeParams) {
+		params.AutoCreateTopic = a
+	}
+}
+
+func TopicHandler(topic, brokerAddr string, h Handler) ConsumeOption {
+	return func(params *ConsumeParams) {
+		params.TopicHandler[topic] = TopicCreateInfo{
+			BrokerAddr: brokerAddr,
+			H:          h,
+		}
+	}
 }
 
 func NewConsumer(conf *ConsumerConf) (*Consumer, error) {
@@ -46,15 +75,53 @@ func NewConsumer(conf *ConsumerConf) (*Consumer, error) {
 		return nil, err
 	}
 	return &Consumer{
-		PC: c,
+		PC:   c,
+		conf: conf,
 	}, nil
 }
 
-func (c *Consumer) Start() error {
+func (c *Consumer) Start(opts ...ConsumeOption) error {
 	if c == nil || c.PC == nil {
 		return fmt.Errorf("consumer is nil")
 	}
+	param := &ConsumeParams{
+		AutoCreateTopic: false,
+		TopicHandler:    make(map[string]TopicCreateInfo),
+	}
+	for _, opt := range opts {
+		opt(param)
+	}
+	if len(param.TopicHandler) > 0 {
+		if err := c.consumeTopics(param); err != nil {
+			return err
+		}
+	}
 	return c.PC.Start()
+}
+
+func (c *Consumer) consumeTopics(param *ConsumeParams) error {
+	ctx := context.Background()
+	for topic, temp := range param.TopicHandler {
+		if param.AutoCreateTopic {
+			exist, err := ExistTopic(ctx, c.conf.NameServerAddrs, topic)
+			if err != nil {
+				return err
+			}
+			if !exist {
+				if strings.TrimSpace(temp.BrokerAddr) == "" {
+					return fmt.Errorf("broker addr is empty")
+				}
+				if err = CreateTopic(ctx, c.conf.NameServerAddrs, topic, temp.BrokerAddr); err != nil {
+					return err
+				}
+				time.Sleep(time.Millisecond * 100) //等待一下，否则监听的时候，可能新创建的Topic还没同步导致启动失败
+			}
+		}
+		if err := consumeTopic(c.PC, topic, temp.H, c.conf); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 type Handler func(ctx context.Context, value []byte) error
@@ -68,32 +135,36 @@ func RegisterHandler(name string, h Handler) error {
 	if err != nil {
 		return err
 	}
-	start := time.Now()
-	for _, topic := range consumerConf.Topics {
-		if err = c.PC.Subscribe(topic, consumer.MessageSelector{}, func(ctx context.Context, ext ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
 
-			for _, messageExt := range ext {
-				if ignore(consumerConf, messageExt, start) {
-					continue
-				}
-				if consumerConf.AsyncConsume {
-					go h(setContext(messageExt), messageExt.Body)
-				} else {
-					h(setContext(messageExt), messageExt.Body)
-					//if errHandle := h(setContext(messageExt), messageExt.Body); errHandle != nil {
-					//	return -1, errHandle
-					//}
-				}
-			}
-			return consumer.ConsumeSuccess, nil
-		}); err != nil {
-			return fmt.Errorf("subscribe failed %s", err)
+	for _, topic := range consumerConf.Topics {
+		if err = consumeTopic(c.PC, topic, h, consumerConf); err != nil {
+			return err
 		}
 	}
 	if err = c.Start(); err != nil {
 		return err
 	}
 	globalConsumers[name] = c
+	return nil
+}
+
+func consumeTopic(pc rocketmq.PushConsumer, topic string, h Handler, consumerConf *ConsumerConf) error {
+	start := time.Now()
+	if err := pc.Subscribe(topic, consumer.MessageSelector{}, func(ctx context.Context, ext ...*primitive.MessageExt) (consumer.ConsumeResult, error) {
+		for _, messageExt := range ext {
+			if ignore(consumerConf, messageExt, start) {
+				continue
+			}
+			if consumerConf.AsyncConsume {
+				go h(setContext(messageExt), messageExt.Body)
+			} else {
+				h(setContext(messageExt), messageExt.Body)
+			}
+		}
+		return consumer.ConsumeSuccess, nil
+	}); err != nil {
+		return fmt.Errorf("subscribe failed %s, topic:[%s]", err, topic)
+	}
 	return nil
 }
 
