@@ -100,3 +100,32 @@ func TestSubOfUTF8(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsChinese(t *testing.T) {
+	type args struct {
+		s string
+	}
+	tests := []struct {
+		name string
+		args args
+		want bool
+	}{
+		{
+			name: "no chinese",
+			args: args{s: "hello"},
+			want: false,
+		},
+		{
+			name: "has chinese",
+			args: args{s: "hello, 你好"},
+			want: true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := ContainsChinese(tt.args.s); got != tt.want {
+				t.Errorf("ContainsChinese() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

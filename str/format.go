@@ -2,6 +2,7 @@ package str
 
 import (
 	"fmt"
+	"unicode"
 	"unicode/utf8"
 )
 
@@ -62,4 +63,14 @@ func SubOfUTF8(s string, start, end int) string {
 		return ""
 	}
 	return string([]rune(s)[start:end])
+}
+
+// ContainsChinese 检查字符串是否包含中文字符
+func ContainsChinese(s string) bool {
+	for _, r := range s {
+		if unicode.Is(unicode.Scripts["Han"], r) {
+			return true
+		}
+	}
+	return false
 }

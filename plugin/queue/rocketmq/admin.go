@@ -55,19 +55,19 @@ func TopicList(ctx context.Context, nameServerAddrs []string) ([]string, error) 
 	return res.TopicList, nil
 }
 
-func DeleteTopic(ctx context.Context, nameServerAddrs []string, adminAddr, topic string) error {
+func DeleteTopic(ctx context.Context, nameServerAddrs []string, brokerAddr, topic string) error {
 	if topic == "" {
 		return fmt.Errorf("topic is empty")
 	}
-	if adminAddr == "" {
-		return fmt.Errorf("adminAddr is empty")
+	if brokerAddr == "" {
+		return fmt.Errorf("brokerAddr is empty")
 	}
 	a, err := NewAdmin(nameServerAddrs)
 	if err != nil {
 		return fmt.Errorf("new admin err:%s, addr:%v", err, nameServerAddrs)
 	}
 	defer a.Close()
-	if err = a.DeleteTopic(ctx, admin.WithTopicDelete(topic), admin.WithBrokerAddrDelete(adminAddr)); err != nil {
+	if err = a.DeleteTopic(ctx, admin.WithTopicDelete(topic), admin.WithBrokerAddrDelete(brokerAddr)); err != nil {
 		return fmt.Errorf("create topic err:%s", err)
 	}
 	return nil
