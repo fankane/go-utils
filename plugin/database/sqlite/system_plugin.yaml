@@ -1,0 +1,7 @@
+plugins:
+  database:  # 插件类型
+    sqlite: # 插件名
+      default:                # sqlite 连接名称：default，可以是其他名字
+        db_file: "F:/shareDir/sqlite/hf_test2.db"
+        mode: #模式 [ro, rw, rwc, memory]
+        cache: # [shared,private]
