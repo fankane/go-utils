@@ -111,7 +111,7 @@ func (c *Consumer) consumeTopics(param *ConsumeParams) error {
 				if strings.TrimSpace(temp.BrokerAddr) == "" {
 					return fmt.Errorf("broker addr is empty")
 				}
-				if err = CreateTopic(ctx, c.conf.NameServerAddrs, topic, temp.BrokerAddr); err != nil {
+				if err = CreateTopic(ctx, c.conf.NameServerAddrs, []string{topic}, temp.BrokerAddr); err != nil {
 					return err
 				}
 				time.Sleep(time.Millisecond * 100) //等待一下，否则监听的时候，可能新创建的Topic还没同步导致启动失败

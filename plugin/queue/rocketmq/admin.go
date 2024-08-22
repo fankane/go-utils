@@ -12,21 +12,23 @@ import (
 type RocketAdmin struct {
 }
 
-func CreateTopic(ctx context.Context, nameServerAddrs []string, topic, brokerAddr string, opts ...admin.OptionCreate) error {
-	if topic == "" {
-		return fmt.Errorf("topic is empty")
+func CreateTopic(ctx context.Context, nameServerAddrs []string, topics []string, brokerAddr string, opts ...admin.OptionCreate) error {
+	if len(topics) == 0 {
+		return fmt.Errorf("topics is empty")
 	}
 	a, err := NewAdmin(nameServerAddrs)
 	if err != nil {
 		return fmt.Errorf("new admin err:%s, addr:%v", err, nameServerAddrs)
 	}
 	defer a.Close()
-	optsReq := make([]admin.OptionCreate, 0)
-	optsReq = append(optsReq, admin.WithTopicCreate(topic))
-	optsReq = append(optsReq, admin.WithBrokerAddrCreate(brokerAddr))
-	optsReq = append(optsReq, opts...)
-	if err = a.CreateTopic(ctx, optsReq...); err != nil {
-		return fmt.Errorf("create topic err:%s", err)
+	for _, topic := range topics {
+		optsReq := make([]admin.OptionCreate, 0)
+		optsReq = append(optsReq, admin.WithTopicCreate(topic))
+		optsReq = append(optsReq, admin.WithBrokerAddrCreate(brokerAddr))
+		optsReq = append(optsReq, opts...)
+		if err = a.CreateTopic(ctx, optsReq...); err != nil {
+			return fmt.Errorf("create topic:%s err:%s", topic, err)
+		}
 	}
 	return nil
 }
