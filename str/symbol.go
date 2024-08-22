@@ -1,0 +1,27 @@
+package str
+
+const (
+	Empty          = ""
+	Space          = " "
+	Semicolon      = ";"
+	Comma          = ","
+	Colon          = ":"
+	SingleQuote    = "'"
+	DoubleQuote    = "\""
+	Dot            = "."
+	LeftParen      = "("
+	RightParen     = ")"
+	Slash          = "/"
+	Backslash      = "\\"
+	Asterisk       = "*"
+	PercentSign    = "%"
+	Hashtag        = "#"
+	Ampersand      = "&"
+	PipeSymbol     = "|"
+	Hyphen         = "-"
+	Underscore     = "_"
+	PlusSign       = "+"
+	EqualSign      = "="
+	CarriageReturn = "\r"
+	LineBreak      = "\n"
+)
