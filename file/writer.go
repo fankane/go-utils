@@ -126,14 +126,13 @@ func Copy(dst, src string) (int64, error) {
 }
 
 func WriteFile(filePath, content string) error {
-	// 打开文件，如果文件不存在则创建
-	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_WRONLY, 0644)
+	// 打开文件，如果文件不存在则创建, 已经有内容则追加
+	file, err := os.OpenFile(filePath, os.O_CREATE|os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	// 写入新内容，覆盖旧内容
 	_, err = file.WriteString(content)
 	if err != nil {
 		return err

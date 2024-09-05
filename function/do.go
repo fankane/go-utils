@@ -51,13 +51,10 @@ func DoPrintCost(ctx context.Context, f func() error, opts ...PrintOption) error
 	return f()
 }
 
-func DoWithLock(f func(), opts ...LockOption) {
-	params := &LockParam{}
+func DoWithLock(f func(), locker sync.Locker, opts ...LockOption) {
+	params := &LockParam{locker: locker}
 	for _, opt := range opts {
 		opt(params)
-	}
-	if params.locker == nil {
-		params.locker = &sync.Mutex{}
 	}
 	params.locker.Lock()
 	defer params.locker.Unlock()

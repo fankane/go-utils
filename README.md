@@ -55,6 +55,8 @@ func main() {
 
 
 ## 常用工具
+### graphql 
+  - [使用文档](gql/README.md)
 ### 函数执行
   - 多次运行 【可选：重试次数，超时时间，间隔时间】
   - 单次运行 【加锁，执行耗时，最长等待】
@@ -76,4 +78,4 @@ func main() {
 ### 网络
   - Http 封装
   - [Websocket封装](http/README.md)
-  - [SSE[server sent events] 封装封装](http/SSE_README.md)
+  - [SSE[server sent events] 封装](http/SSE_README.md)
