@@ -53,6 +53,7 @@ r.GET("/graphql", f) //网页调试页面
 r.Run(":8080") //启动后即可看到效果
 ```
 - 访问URL：http://localhost:8080/graphql
+
 ![avatar](../plugin/image/graph_demo.png)
 
 
@@ -121,5 +122,6 @@ func QueryOrderContainUserInterface(params map[string]interface) (interface, err
 ```
 
 - 访问URL：http://localhost:8080/graphql
-  ![avatar](../plugin/image/gql_contains.png)
+
+![avatar](../plugin/image/gql_contains.png)
 
