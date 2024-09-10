@@ -18,19 +18,22 @@ var (
 	ListDateTime ValidType = graphql.NewList(graphql.DateTime)
 )
 
+type GType graphql.Type
 type ValidType interface{}
 type TableQuery func(args map[string]interface{}) (interface{}, error)
 
 type TableGraphInfo struct {
-	Name      string
-	Fields    map[string]ValidType
-	QueryFunc TableQuery
+	Name         string
+	Fields       map[string]ValidType
+	CustomFields map[string]GType //自定义非基础字段类型的字段，可以为空
+	QueryFunc    TableQuery
 }
 
+// NewTableQueryField Schema定义里面的Fields信息 Resolve方法是提供数据的业务函数
 func NewTableQueryField(info *TableGraphInfo) *graphql.Field {
 	return &graphql.Field{
 		Name: fmt.Sprintf("Query%s", info.Name),
-		Type: graphql.NewList(NewTableObject(info.Name, info.Fields)),
+		Type: graphql.NewList(NewTableObject(info)),
 		Args: NewTableQueryArgs(info.Fields),
 		Resolve: func(p graphql.ResolveParams) (interface{}, error) {
 			return info.QueryFunc(p.Args)
@@ -38,6 +41,7 @@ func NewTableQueryField(info *TableGraphInfo) *graphql.Field {
 	}
 }
 
+// NewTableQueryArgs 查询表数据时，查询参数定义
 func NewTableQueryArgs(fieldM map[string]ValidType) map[string]*graphql.ArgumentConfig {
 	res := make(map[string]*graphql.ArgumentConfig)
 	for s, validType := range fieldM {
@@ -46,14 +50,35 @@ func NewTableQueryArgs(fieldM map[string]ValidType) map[string]*graphql.Argument
 	return res
 }
 
-func NewTableObject(tableName string, fieldM map[string]ValidType) *graphql.Object {
+// NewTableObject 对表字段进行封装，提供 graphql 格式的对象
+func NewTableObject(info *TableGraphInfo) *graphql.Object {
+	fields := NewTableFields(info.Fields)
+	if fields == nil {
+		fields = make(graphql.Fields)
+	}
+	if info.CustomFields != nil {
+		AppendCustomFields(fields, info.CustomFields)
+	}
+	obj := graphql.NewObject(graphql.ObjectConfig{
+		Name:   info.Name,
+		Fields: fields,
+	})
+	return obj
+}
+
+func NewTableFields(fieldM map[string]ValidType) graphql.Fields {
 	fields := make(graphql.Fields)
 	for fieldName, validType := range fieldM {
 		fields[fieldName] = &graphql.Field{Type: validType.(*graphql.Scalar)}
 	}
-	obj := graphql.NewObject(graphql.ObjectConfig{
-		Name:   tableName,
-		Fields: fields,
-	})
-	return obj
+	return fields
+}
+
+func AppendCustomFields(fields graphql.Fields, customFieldM map[string]GType) {
+	if fields == nil {
+		return
+	}
+	for fieldName, t := range customFieldM {
+		fields[fieldName] = &graphql.Field{Type: t.(graphql.Type)}
+	}
 }
