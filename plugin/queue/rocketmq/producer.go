@@ -16,7 +16,8 @@ type Producer struct {
 
 func NewProducer(conf *ProducerConf) (*Producer, error) {
 	opts := make([]producer.Option, 0)
-	opts = append(opts, producer.WithNameServer(conf.NameServerAddrs))
+	//opts = append(opts, producer.WithNameServer(conf.NameServerAddrs))
+	opts = append(opts, producer.WithNsResolver(primitive.NewPassthroughResolver(conf.NameServerAddrs)))
 	opts = append(opts, producer.WithGroupName(conf.GroupName))
 	opts = append(opts, producer.WithNamespace(conf.NameSpace))
 	if conf.Retries > 0 {
