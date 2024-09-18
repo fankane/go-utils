@@ -55,8 +55,9 @@ func TopicHandler(topic, brokerAddr string, h Handler) ConsumeOption {
 
 func NewConsumer(conf *ConsumerConf) (*Consumer, error) {
 	opts := make([]consumer.Option, 0)
+	//opts = append(opts, consumer.WithNameServer(conf.NameServerAddrs))
+	opts = append(opts, consumer.WithNsResolver(primitive.NewPassthroughResolver(conf.NameServerAddrs)))
 	opts = append(opts, consumer.WithGroupName(conf.GroupName))
-	opts = append(opts, consumer.WithNameServer(conf.NameServerAddrs))
 	opts = append(opts, consumer.WithNamespace(conf.NameSpace))
 	if slice.InInts(conf.ConsumeFrom, ConsumeFromList) {
 		opts = append(opts, consumer.WithConsumeFromWhere(consumer.ConsumeFromWhere(conf.ConsumeFrom)))
