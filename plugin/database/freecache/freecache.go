@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/coocood/freecache"
+	fc "github.com/coocood/freecache"
 	"github.com/fankane/go-utils/plugin"
 	"gopkg.in/yaml.v3"
 )
@@ -16,10 +16,12 @@ const (
 )
 
 var (
-	Cache          *freecache.Cache
+	Cache          *fc.Cache
 	DefaultFactory = &Factory{}
-	caches         = make(map[string]*freecache.Cache)
+	caches         = make(map[string]*fc.Cache)
 	mu             = sync.RWMutex{}
+
+	ErrNotFound = fc.ErrNotFound
 )
 
 type Config struct {
@@ -30,7 +32,7 @@ func init() {
 	plugin.Register(pluginName, DefaultFactory)
 }
 
-func GetCache(name string) *freecache.Cache {
+func GetCache(name string) *fc.Cache {
 	mu.RLock()
 	defer mu.RUnlock()
 	return caches[name]
@@ -54,7 +56,7 @@ func (f *Factory) Setup(name string, node *yaml.Node) error {
 		return fmt.Errorf("cache config is emtpy")
 	}
 	for confName, config := range confMap {
-		cache := freecache.NewCache(config.CacheSize)
+		cache := fc.NewCache(config.CacheSize)
 		if confName == defaultName {
 			Cache = cache
 		}
