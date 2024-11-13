@@ -1,11 +1,16 @@
 plugins:
   database:  # 插件类型
     neo4j: # 插件名
+#      default:                # 连接名称：default，可以是其他名字
+#        target: "bolt://192.168.0.155:7687"
+#        user: "neo4j"
+#        pwd: "pwd123bjsh"
+#        database_name: "neo4j"
       default:                # 连接名称：default，可以是其他名字
-        target: "bolt://192.168.0.93:7687"
-        user: neo4j
-        pwd: pwd123
+        target: "bolt://localhost:7687"
+        user: "neo4j"
+        pwd: "pwd123"
       http:                # 连接名称
-        target: "neo4j://127.0.0.1:7687"
+        target: "neo4j://localhost:7687"
         user: neo4j
         pwd: pwd123

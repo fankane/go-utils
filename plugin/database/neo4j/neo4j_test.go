@@ -1,6 +1,7 @@
 package neo4j
 
 import (
+	"context"
 	"fmt"
 	"testing"
 
@@ -14,20 +15,27 @@ func TestMatch(t *testing.T) {
 		return
 	}
 
-	res, err := Cli.Session.Run("match (n:Person) return n", nil)
+	//cql := "MATCH (p1:`项目名称`)-[r]->(p2:`申请情况`) RETURN p1,r, p2"
+	cql := "MATCH (n) RETURN n"
+	//cql := "MATCH (p1:Person)-[r]->(p2:Person) RETURN p1, r, p2" //本地数据库
+	ctx := context.Background()
+	records, err := Dri.Run(ctx, cql, nil)
 	if err != nil {
 		fmt.Println("run err:", err)
 		return
 	}
 
-	records, err := res.Collect()
-	if err != nil {
-		fmt.Println("Collect err:", err)
-		return
-	}
-	fmt.Println(str.ToJSON(records))
+	fmt.Println("len:", len(records))
+	fmt.Println("detail:", str.ToJSON(records))
 	for _, record := range records {
-		//fmt.Println("keys", record.Keys)
+		//fmt.Println("keys len", len(record.Keys))
+		fmt.Println("record:", str.ToJSON(record))
+		b, ok := record.Get("birday")
+		if ok {
+			fmt.Println("dirthday:", b)
+		} else {
+			fmt.Println("birthday not exist")
+		}
 		for _, key := range record.Keys {
 			v, ok := record.Get(key)
 			if !ok {
@@ -39,22 +47,16 @@ func TestMatch(t *testing.T) {
 	}
 	return
 }
+
 func TestCreate(t *testing.T) {
 	if err := plugin.Load(); err != nil {
 		fmt.Println("err:", err)
 		return
 	}
-
-	res, err := Cli.Session.Run("create (hf:Person{birday:\"1993-09-11\",gender:\"male\",phone:\"0755\"})", nil)
-	//res, err := Session.Session.Run("match (n:Person) where id(n) = 5 or id(n)=6 delete n", nil)
+	ctx := context.Background()
+	records, err := Dri.Run(ctx, "create (hf2:Person{birday:\"1993-09-11\",gender:\"male\",phone:\"3333\"})", nil)
 	if err != nil {
 		fmt.Println("run err:", err)
-		return
-	}
-
-	records, err := res.Collect()
-	if err != nil {
-		fmt.Println("Collect err:", err)
 		return
 	}
 	fmt.Println(str.ToJSON(records))
