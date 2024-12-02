@@ -12,8 +12,9 @@ import (
 )
 
 type DoParams struct {
-	BaseHeader   http.Header       //发起请求前设置基础 header
-	AppendHeader map[string]string //在baseHeader基础上增加 key-value 对
+	BaseHeader     http.Header //发起请求前设置基础 header
+	ResponseHeader http.Header
+	AppendHeader   map[string]string //在baseHeader基础上增加 key-value 对
 }
 
 type DoOption func(params *DoParams)
@@ -21,6 +22,13 @@ type DoOption func(params *DoParams)
 func BaseHeader(header http.Header) DoOption {
 	return func(params *DoParams) {
 		params.BaseHeader = header
+	}
+}
+
+// RespHeader header should not be nil, otherwise can't get response header
+func RespHeader(header http.Header) DoOption {
+	return func(params *DoParams) {
+		params.ResponseHeader = header
 	}
 }
 
@@ -114,5 +122,17 @@ func (c *Client) doRequestV2(ctx context.Context, method, url string, data []byt
 	if err != nil {
 		return 0, nil, err
 	}
+	setRespHeader(resp, doParams)
 	return parseDoResp(resp)
+}
+
+func setRespHeader(resp *http.Response, doParams *DoParams) {
+	if doParams.ResponseHeader == nil {
+		return
+	}
+	for k, v := range resp.Header {
+		for _, vv := range v {
+			doParams.ResponseHeader.Add(k, vv)
+		}
+	}
 }
