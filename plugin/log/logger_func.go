@@ -46,6 +46,10 @@ func SetCTXTrace(ctx context.Context) context.Context {
 	return context.WithValue(ctx, ctxTrace, traceID)
 }
 
+func GetTraceFromCTX(ctx context.Context) string {
+	return getTrace(ctx)
+}
+
 func getTrace(ctx context.Context) string {
 	t := ctx.Value(ctxTrace)
 	if t == nil {

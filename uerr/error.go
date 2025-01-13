@@ -46,6 +46,25 @@ func (e *Err) EMsgPriority() string {
 	return e.Msg
 }
 
+func (e *Err) SetCode(code int) {
+	if e == nil {
+		return
+	}
+	e.Code = code
+}
+func (e *Err) SetMsg(msg string) {
+	if e == nil {
+		return
+	}
+	e.Msg = msg
+}
+func (e *Err) SetShowMsg(showMsg string) {
+	if e == nil {
+		return
+	}
+	e.ShowMsg = showMsg
+}
+
 func NewErr(msg string, opts ...Option) *Err {
 	e := &Err{Msg: msg}
 	for _, opt := range opts {
