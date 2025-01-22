@@ -11,6 +11,15 @@ excelize 官方文档:https://xuri.me/excelize/zh-hans/base/installation.html#re
 
 const defaultSheetIdx = 1
 
+func XlsxSheetMap(filePath string) (map[int]string, error) {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+	return f.GetSheetMap(), nil
+}
+
 func XlsxSheet(filePath string) ([][]string, error) {
 	return XlsxSheetOfIdx(filePath, defaultSheetIdx)
 }
