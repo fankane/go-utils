@@ -145,3 +145,29 @@ func StrSliFromIntSli(slice []int) []string {
 	}
 	return result
 }
+
+func DistinctStrSli(slice []string) []string {
+	result := make([]string, 0, len(slice))
+	m := make(map[string]struct{})
+	for _, s := range slice {
+		if _, ok := m[s]; ok {
+			continue
+		}
+		m[s] = struct{}{}
+		result = append(result, s)
+	}
+	return result
+}
+
+func DistinctIntSli(slice []int) []int {
+	result := make([]int, 0, len(slice))
+	m := make(map[int]struct{})
+	for _, s := range slice {
+		if _, ok := m[s]; ok {
+			continue
+		}
+		m[s] = struct{}{}
+		result = append(result, s)
+	}
+	return result
+}
