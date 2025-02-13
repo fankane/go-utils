@@ -89,11 +89,8 @@ NewSnowflake
 整体支持同一个毫秒内，最多 1024 * 4096 个唯一ID
 */
 func NewSnowflake(datacenterID, workerID int64, opts ...CPOptions) (*Snowflake, error) {
-	fmt.Println("default:", fmt.Sprintf("%p", &defaultBits))
 	dp := defaultBits
-	fmt.Println("dp:", fmt.Sprintf("%p", &dp))
 	if len(opts) > 0 {
-		fmt.Println("opts has")
 		for _, opt := range opts {
 			opt(&dp)
 		}
@@ -101,7 +98,6 @@ func NewSnowflake(datacenterID, workerID int64, opts ...CPOptions) (*Snowflake, 
 			return nil, err
 		}
 	}
-	fmt.Println(dp.epoch, dp.datacenterBits, dp.workerBits, dp.sequenceBits)
 	if datacenterID > dp.maxDatacenterID {
 		return nil, fmt.Errorf("datacenterID out of limit")
 	}
