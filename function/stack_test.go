@@ -3,6 +3,7 @@ package function
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestNewStack(t *testing.T) {
@@ -15,4 +16,6 @@ func TestNewStack(t *testing.T) {
 		v := s.Pop()
 		fmt.Println(v, s.Size())
 	}
+
+	time.NewTimer(time.Second)
 }

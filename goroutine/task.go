@@ -3,10 +3,10 @@ package goroutine
 import (
 	"context"
 	"fmt"
-	"github.com/fankane/go-utils/utime"
 	"sync"
 	"time"
 
+	"github.com/fankane/go-utils/utime"
 	"github.com/panjf2000/ants/v2"
 )
 

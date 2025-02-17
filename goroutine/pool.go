@@ -21,7 +21,6 @@ type OptParams struct {
 type Option func(params *OptParams)
 
 /*
-*
 Exec 并发执行 function
 可指定最大协程数量，超时时间，错误是否返回
 */
