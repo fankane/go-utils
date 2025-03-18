@@ -137,10 +137,11 @@ func getEvent(line []byte) *SSEEvent {
 		e.Event = append([]byte(nil), trimHeader(len(preEvent), line)...)
 	case bytes.HasPrefix(line, preRetry):
 		e.Retry = append([]byte(nil), trimHeader(len(preRetry), line)...)
+	case bytes.HasPrefix(line, preComment):
+		e.Comment = append([]byte(nil), trimHeader(len(preComment), line)...)
 	default:
 		// Ignore any garbage that doesn't match what we're looking for.
 	}
-	//fmt.Println("eeeee:", string(e.Data))
 	return &e
 }
 
