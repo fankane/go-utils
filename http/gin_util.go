@@ -90,3 +90,7 @@ func GetTraceID(c *gin.Context) string {
 	}
 	return traceID
 }
+
+func ProxyGinRequest(ctx context.Context, c *gin.Context, url string) error {
+	return ProxyRequest(ctx, url, c.Writer, c.Request)
+}
