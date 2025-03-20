@@ -116,3 +116,21 @@ func parseSliceObject(valOf reflect.Value, result *JsonProperty) error {
 	firstEle := valOf.Index(0)
 	return parseObject(reflect.ValueOf(firstEle.Interface()), result)
 }
+
+func JsonIsMap(jsonStr string) bool {
+	var jsonData interface{}
+	err := json.Unmarshal([]byte(jsonStr), &jsonData)
+	if err != nil {
+		return false
+	}
+	return reflect.ValueOf(jsonData).Kind() == reflect.Map
+}
+
+func JsonIsSlice(jsonStr string) bool {
+	var jsonData interface{}
+	err := json.Unmarshal([]byte(jsonStr), &jsonData)
+	if err != nil {
+		return false
+	}
+	return reflect.ValueOf(jsonData).Kind() == reflect.Slice || reflect.ValueOf(jsonData).Kind() == reflect.Array
+}
