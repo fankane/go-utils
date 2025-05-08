@@ -98,6 +98,32 @@ func XlsxSheetAddRowsAtLast(filePath, sheetName string, rowVals []interface{}) e
 	return nil
 }
 
+// DelRowsWithSheetName 删除指定行, start 从1开始
+// end: -1 表示删除到最后一行
+func DelRowsWithSheetName(filePath, sheetName string, start, end int) error {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	return doDelRowsWithSheetName(f, sheetName, start, end)
+}
+
+// DelRowsWithSheetIdx 删除指定行, start 从1开始
+// end: -1 表示删除到最后一行
+func DelRowsWithSheetIdx(filePath string, sheetIdx, start, end int) error {
+	f, err := excelize.OpenFile(filePath)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	sheetName, err := getSheetName(f, sheetIdx)
+	if err != nil {
+		return fmt.Errorf("get sheet name err:%s", err)
+	}
+	return doDelRowsWithSheetName(f, sheetName, start, end)
+}
+
 func sheetOfIdx(f *excelize.File, idx int) ([][]string, error) {
 	name, err := getSheetName(f, idx)
 	if err != nil {
@@ -179,15 +205,11 @@ func getColNumOfRow(f *excelize.File, sheetName string, n int) (int, error) {
 
 // 获取行数
 func getSheetRowLen(f *excelize.File, sheetName string) (int, error) {
-	rows, err := f.Rows(sheetName)
+	rows, err := f.GetRows(sheetName)
 	if err != nil {
 		return 0, err
 	}
-	i := 0
-	for rows.Next() {
-		i++
-	}
-	return i, nil
+	return len(rows), nil
 }
 
 func addRowAtLast(f *excelize.File, sheetName string, rowVals []interface{}) error {
@@ -198,7 +220,6 @@ func addRowAtLast(f *excelize.File, sheetName string, rowVals []interface{}) err
 	if err != nil {
 		return err
 	}
-
 	/**
 	insertRow 是在指定行的【前面】添加,所以需要+2
 	比如：只有一行 1，需要往后面添加第2行，则需要在第3行前插入第2 行，
@@ -212,8 +233,35 @@ func addRowAtLast(f *excelize.File, sheetName string, rowVals []interface{}) err
 		}
 	}
 
-	if err := f.Save(); err != nil {
+	if err = f.Save(); err != nil {
 		return fmt.Errorf("file save err:%s", err)
 	}
 	return nil
+}
+
+func doDelRowsWithSheetName(f *excelize.File, sheetName string, start, end int) error {
+	if start < 1 {
+		return fmt.Errorf("start must be greater than 0")
+	}
+	if end != -1 && start > end {
+		return fmt.Errorf("start must be less than or equal end")
+	}
+
+	// 获取所有行数据
+	rows, err := f.GetRows(sheetName)
+	if err != nil {
+		return fmt.Errorf("读取工作表失败:%s", err)
+	}
+	if len(rows) < start {
+		return fmt.Errorf("行数不足, start:%d, rows:%d", start, len(rows))
+	}
+	if end == -1 {
+		end = len(rows)
+	}
+	for i := end; i >= start; i-- {
+		if err = f.RemoveRow(sheetName, i); err != nil {
+			return fmt.Errorf("remove %d 行失败 err:%s", i, err)
+		}
+	}
+	return f.Save()
 }

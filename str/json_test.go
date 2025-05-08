@@ -36,3 +36,9 @@ func TestParseJSONStr(t *testing.T) {
 	}
 	fmt.Println(ToJSON(res))
 }
+
+func TestJsonIsMap(t *testing.T) {
+	fmt.Println(JsonIsMap(`{}`))
+	fmt.Println(JsonIsMap(`[]`))
+	fmt.Println(JsonIsSlice(`[]`))
+}
