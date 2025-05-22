@@ -232,7 +232,6 @@ func daemonTopicMsg(topic string, msgList MessageList) {
 				if msgCanExec(msg) {
 					consumerMsg := msgList.pop()
 					if consumerMsg == nil {
-						fmt.Println("first is nil")
 						continue
 					}
 					msgTopic.consumerChan <- consumerMsg
